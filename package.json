@@ -1,0 +1,10 @@
+{
+  "name": "f1-navigator",
+  "version": "1.0.0",
+  "description": "F1 Visa Non-Lottery Immigration Strategy & Status Runway Engine",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "start": "python3 -m http.server 8080"
+  }
+}

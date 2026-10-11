@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F1 Navigator | Non-Lottery Immigration & Runway Strategy Engine</title>
+  <meta name="description" content="Operational immigration intelligence tool helping F-1 students navigate non-lottery pathways to stay and work in the US: O-1A, EB-2 NIW, Cap-Exempt H-1B, and Treaty visas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+  
+  <!-- Modern Minimalist CSS -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <div class="brand-icon" aria-hidden="true">🧭</div>
+        <div class="brand-name">F1 Navigator</div>
+        <span class="brand-badge">Non-Lottery Engine</span>
+      </div>
+
+      <div class="header-status-group">
+        <div class="save-indicator">
+          <span class="save-dot"></span>
+          <span>Saved in browser</span>
+        </div>
+        <button id="btnResetAll" class="btn btn-secondary btn-sm" title="Clear inputs and start fresh">
+          Start Fresh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Progress Stepper -->
+  <nav class="stepper-nav" aria-label="Progress Stepper">
+    <ol class="stepper-list">
+      <li class="step-item active" data-step="1" id="stepIndicator1">
+        <div class="step-circle">1</div>
+        <span class="step-label">Your Profile</span>
+      </li>
+      <li class="step-item" data-step="2" id="stepIndicator2">
+        <div class="step-circle">2</div>
+        <span class="step-label">Visa Matches</span>
+      </li>
+      <li class="step-item" data-step="3" id="stepIndicator3">
+        <div class="step-circle">3</div>
+        <span class="step-label">Pathway Details</span>
+      </li>
+      <li class="step-item" data-step="4" id="stepIndicator4">
+        <div class="step-circle">4</div>
+        <span class="step-label">Strategic Report</span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- ========================================== -->
+    <!-- STEP 1: INITIAL PROFILE INTAKE FORM        -->
+    <!-- ========================================== -->
+    <section id="step1View" class="step-view active" aria-labelledby="step1Title">
+      <div class="card">
+        <div class="card-header-clean">
+          <h1 class="card-title-clean" id="step1Title">Let's map your non-lottery immigration options</h1>
+          <p class="card-subtitle-clean">
+            Provide your academic and operational details below. We'll analyze your background against U.S. immigration regulations to identify viable visa pathways outside the standard H-1B lottery.
+          </p>
+        </div>
+
+        <form id="profileForm">
+          <!-- Section 1: Academic Credentials -->
+          <div class="form-section-title">1. Academic Background</div>
+          
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="inputDegree">Degree Level</label>
+              <select id="inputDegree" class="form-select" required>
+                <option value="Master's">Master's Degree (U.S.)</option>
+                <option value="Ph.D.">Ph.D. / Doctorate (U.S.)</option>
+                <option value="Bachelor's">Bachelor's Degree</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputMajor">
+                <span>Field of Study / Major</span>
+                <span id="stemPill" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; background: rgba(16, 185, 129, 0.12); color: #10b981; font-weight: 600;">
+                  STEM Eligible (+24 Mos)
+                </span>
+              </label>
+              <select id="inputMajor" class="form-select" required></select>
+            </div>
+          </div>
+
+          <!-- Section 2: Citizenship & Timeline -->
+          <div class="form-section-title">2. Citizenship & Status Timeline</div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="inputNationality">Country of Citizenship</label>
+              <input type="text" id="inputNationality" class="form-input" placeholder="e.g. India, Canada, Australia, Germany, China, Mexico" required>
+              <div class="form-hint">Screens for TN, E-3, H-1B1, and 80+ E-2 bilateral treaties.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputGradDate">Graduation Date</label>
+              <input type="date" id="inputGradDate" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="inputOptStart">OPT / EAD Start Date</label>
+              <input type="date" id="inputOptStart" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputUnemploymentUsed">Unemployment Days Used</label>
+              <input type="number" id="inputUnemploymentUsed" class="form-input" min="0" max="150" value="0">
+              <div class="form-hint">Standard OPT limit: 90 days. STEM cumulative limit: 150 days.</div>
+            </div>
+          </div>
+
+          <!-- Section 3: Career Orientation -->
+          <div class="form-section-title">3. Primary Career Intent</div>
+
+          <div class="form-group">
+            <div class="radio-cards-group">
+              <div class="radio-card selected" data-value="corporate" id="trackCardCorporate">
+                <div class="radio-card-title">Corporate Employment</div>
+                <div class="radio-card-desc">Working for a private tech firm, enterprise, or startup as a W-2 employee.</div>
+              </div>
+
+              <div class="radio-card" data-value="founder" id="trackCardFounder">
+                <div class="radio-card-title">Startup Founder</div>
+                <div class="radio-card-desc">Launching or scaling your own startup venture in the United States.</div>
+              </div>
+
+              <div class="radio-card" data-value="research" id="trackCardResearch">
+                <div class="radio-card-title">Research / Academia</div>
+                <div class="radio-card-desc">Higher education, university-affiliated labs, or non-profit research institutes.</div>
+              </div>
+            </div>
+            <input type="hidden" id="inputCareerTrack" value="corporate">
+          </div>
+
+          <!-- Section 4: Scholarly & Professional Footprint -->
+          <div class="form-section-title">4. Achievements & Resources (Optional / Screening)</div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="form-label" for="inputCitations">Google Citations</label>
+              <input type="number" id="inputCitations" class="form-input" min="0" value="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputPapers">Scholarly Papers</label>
+              <input type="number" id="inputPapers" class="form-input" min="0" value="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputPeerReviews">Peer Reviews Done</label>
+              <input type="number" id="inputPeerReviews" class="form-input" min="0" value="0">
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="form-label" for="inputPatents">Patents / Inventions</label>
+              <input type="number" id="inputPatents" class="form-input" min="0" value="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputSalary">Annual Salary / Offer ($)</label>
+              <input type="number" id="inputSalary" class="form-input" step="5000" value="120000">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputSavings">Liquid Savings ($)</label>
+              <input type="number" id="inputSavings" class="form-input" step="1000" value="25000">
+            </div>
+          </div>
+
+          <div class="btn-row" style="justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" id="btnSubmitProfile">
+              Evaluate Visa Pathways →
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- STEP 2: VISA RECOMMENDATIONS & SELECTION   -->
+    <!-- ========================================== -->
+    <section id="step2View" class="step-view" aria-labelledby="step2Title">
+      <div class="card">
+        <div class="card-header-clean">
+          <h2 class="card-title-clean" id="step2Title">Your Recommended Visa Pathways</h2>
+          <p class="card-subtitle-clean">
+            Based on your qualifications and citizenship, we ranked your top non-lottery pathways. Select the pathway you want to pursue to tailor your strategic report and financial roadmap.
+          </p>
+        </div>
+
+        <div id="step2ProfileSummary" style="padding: 12px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); margin-bottom: 20px; font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <!-- Injected via JS -->
+        </div>
+
+        <div class="pathway-list" id="pathwaysContainer">
+          <!-- Injected dynamically via JS -->
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" id="btnBackToStep1">
+            ← Edit Profile Details
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- STEP 3: PATHWAY-SPECIFIC DEEP-DIVE DETAILS -->
+    <!-- ========================================== -->
+    <section id="step3View" class="step-view" aria-labelledby="step3Title">
+      <div class="card">
+        <div class="card-header-clean">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); font-weight: 700; margin-bottom: 4px;" id="selectedPathwayTag">
+            Selected Pathway
+          </div>
+          <h2 class="card-title-clean" id="step3Title">Tailoring Your Strategy</h2>
+          <p class="card-subtitle-clean" id="step3Subtitle">
+            Answer a few pathway-specific questions so we can generate your customized operational checklist, filing timeline, and financial budget.
+          </p>
+        </div>
+
+        <form id="deepDiveForm">
+          <!-- Dynamic Form Fields tailored to chosen pathway -->
+          <div id="deepDiveDynamicFields">
+            <!-- Injected via JS based on chosen visa -->
+          </div>
+
+          <!-- General Financial Questions for the Report -->
+          <div class="form-section-title">Financial &amp; Living Runway Parameters</div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="inputMonthlyLiving">Estimated Monthly Living Costs ($)</label>
+              <input type="number" id="inputMonthlyLiving" class="form-input" step="100" value="2800" required>
+              <div class="form-hint">Rent, utilities, food, and local transit.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputTargetFiling">Target Filing Timeframe</label>
+              <select id="inputTargetFiling" class="form-select">
+                <option value="urgent">Immediate (Within 30–60 Days)</option>
+                <option value="moderate" selected>Medium-Term (3–6 Months)</option>
+                <option value="longterm">Standard OPT Transition (6–12 Months)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" id="btnBackToStep2">
+              ← Change Visa Pathway
+            </button>
+            <button type="submit" class="btn btn-primary" id="btnGenerateReport">
+              Generate Strategic Report &amp; Next Steps →
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- STEP 4: BESPOKE STRATEGIC REPORT           -->
+    <!-- ========================================== -->
+    <section id="step4View" class="step-view" aria-labelledby="step4Title">
+      <div id="reportContainer">
+        <!-- Injected dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- Minimal Footer -->
+    <footer class="minimal-footer">
+      <p>
+        F1 Navigator is an operational modeling prototype for informational strategy based on U.S. immigration regulations (8 CFR). Not legal advice.
+      </p>
+    </footer>
+
+  </main>
+
+  <!-- Application Module Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
