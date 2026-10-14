@@ -383,7 +383,7 @@ body {
   right: 0;
   width: 380px;
   height: 220px;
-  background-image: url('../assets/patterns/Pattern 1/Pattern 1 - Light Blue.svg');
+  background-image: url('../assets/patterns/Pattern%201/Pattern%201%20-%20Light%20Blue.svg');
   background-repeat: no-repeat;
   background-position: top right;
   background-size: cover;
@@ -901,7 +901,7 @@ body {
   right: 0;
   width: 440px;
   height: 100%;
-  background-image: url('../assets/patterns/Pattern 1/Pattern 1 - White.svg');
+  background-image: url('../assets/patterns/Pattern%201/Pattern%201%20-%20White.svg');
   background-repeat: no-repeat;
   background-position: center right;
   background-size: cover;
