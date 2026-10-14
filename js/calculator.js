@@ -149,6 +149,8 @@ export function evaluatePathwayRecommendations(profile) {
       visaCode: treatyInfo.visaType,
       name: `${treatyInfo.visaType} (Bilateral Treaty)`,
       category: 'Nationality Treaty Pathway',
+      locationTag: 'Ways to Stay in the U.S.',
+      isOutOfUs: false,
       matchScore: 98,
       statusTag: 'Top Match',
       summary: `Direct, lottery-free work authorization exclusively for citizens of ${profile.nationality}. Allows qualifying professionals to obtain legal employment without the H-1B lottery cap.`,
@@ -177,6 +179,8 @@ export function evaluatePathwayRecommendations(profile) {
     visaCode: 'O-1A',
     name: 'O-1A Extraordinary Ability Visa',
     category: 'Merit-Based (Non-Lottery)',
+    locationTag: 'Ways to Stay in the U.S.',
+    isOutOfUs: false,
     matchScore: o1Score,
     statusTag: o1Score >= 75 ? 'Prime Candidate' : o1Score >= 50 ? 'Strong Potential' : 'Developing Profile',
     summary: 'A premier non-immigrant visa for individuals with demonstrated achievements in STEM, business, or education. Completely uncapped with zero lottery mechanism.',
@@ -207,6 +211,8 @@ export function evaluatePathwayRecommendations(profile) {
     visaCode: 'EB-2 NIW',
     name: 'EB-2 NIW (National Interest Waiver)',
     category: 'Permanent Residency (Green Card)',
+    locationTag: 'Ways to Stay in the U.S.',
+    isOutOfUs: false,
     matchScore: niwScore,
     statusTag: niwScore >= 75 ? 'Strong Self-Petition' : niwScore >= 55 ? 'Viable Candidate' : 'Long-Term Target',
     summary: 'Direct self-petition for a U.S. Green Card without needing an employer sponsor or labor certification (PERM), based on the national importance of your proposed endeavor.',
@@ -230,6 +236,8 @@ export function evaluatePathwayRecommendations(profile) {
     visaCode: 'Cap-Exempt H-1B',
     name: 'Cap-Exempt H-1B (Universities & Non-Profits)',
     category: 'Institutional Sponsor (Non-Lottery)',
+    locationTag: 'Ways to Stay in the U.S.',
+    isOutOfUs: false,
     matchScore: capExemptScore,
     statusTag: capExemptScore >= 75 ? 'Ideal Academic Fit' : 'Strategic Bridge',
     summary: 'H-1B petitions filed by higher education institutions, affiliated university hospitals, and non-profit or governmental research organizations are 100% exempt from the annual lottery cap.',
@@ -256,6 +264,8 @@ export function evaluatePathwayRecommendations(profile) {
       visaCode: 'E-2 Investor',
       name: 'E-2 Treaty Investor Visa',
       category: 'Entrepreneur / Founder Pathway',
+      locationTag: 'Ways to Stay in the U.S.',
+      isOutOfUs: false,
       matchScore: e2Score,
       statusTag: e2Score >= 75 ? 'High Founder Readiness' : 'Capital Dependent',
       summary: `Allows nationals of ${profile.nationality} (an official E-2 treaty partner) to launch, operate, and control a U.S. business by investing substantial at-risk capital.`,
@@ -266,13 +276,15 @@ export function evaluatePathwayRecommendations(profile) {
     });
   }
 
-  // 6. L-1 Global Corporate Bridge
+  // 6. L-1 Global Corporate Bridge (Out of U.S. Pathway)
   let l1Score = profile.careerTrack === 'corporate' ? 70 : 45;
   pathways.push({
     id: 'l1',
     visaCode: 'L-1 Intra-Company',
-    name: 'L-1 Intra-Company Transfer Bridge (1 Year Abroad)',
-    category: 'Corporate Relocation Bridge',
+    name: 'L-1 Intra-Company Transfer Bridge',
+    category: 'Out of U.S. Pathway',
+    locationTag: '(Out of U.S. Pathway)',
+    isOutOfUs: true,
     matchScore: l1Score,
     statusTag: 'Corporate Backup',
     summary: 'If OPT expires without an alternative, multinational employers transfer you to an international subsidiary (e.g., Toronto, London, Dublin) for 1 continuous year, then return you to the U.S. on L-1 status.',
@@ -294,6 +306,15 @@ export function generatePathwayReport(profile, pathwayId, pathwayDetails = {}) {
   const healthcareGap = 280;
   const totalMonthlyBurn = monthlyLiving + healthcareGap;
   const runwayMonths = totalMonthlyBurn > 0 ? (liquidSavings / totalMonthlyBurn).toFixed(1) : '0';
+  const runwayVal = Number(runwayMonths);
+  let safetyNetMessage = '';
+  if (runwayVal <= 0) {
+    safetyNetMessage = 'Your current plan shows 0 months of financial cushion. This means any unexpected expenses in Year 1 would require outside funds not accounted for in this report.';
+  } else if (runwayVal < 3) {
+    safetyNetMessage = `Your current plan shows ${runwayMonths} months of financial cushion. Any unexpected delays or legal fees would place pressure on unmodeled reserves. We recommend targeting a 6-month buffer.`;
+  } else {
+    safetyNetMessage = `Your current plan shows ${runwayMonths} months of financial cushion. This provides a resilient buffer while your petition is prepared, filed, and adjudicated.`;
+  }
 
   // Itemized fee calculations based on chosen pathway
   let governmentFees = [];
@@ -436,6 +457,8 @@ export function generatePathwayReport(profile, pathwayId, pathwayDetails = {}) {
 
   return {
     pathwayId,
+    locationTag: pathwayId === 'l1' ? '(Out of U.S. Pathway)' : 'Ways to Stay in the U.S.',
+    isOutOfUs: pathwayId === 'l1',
     timeline,
     strategyBrief,
     governmentFees,
@@ -447,6 +470,7 @@ export function generatePathwayReport(profile, pathwayId, pathwayDetails = {}) {
     totalMonthlyBurn,
     liquidSavings,
     runwayMonths: Number(runwayMonths),
+    safetyNetMessage,
     milestones,
     complianceTraps
   };

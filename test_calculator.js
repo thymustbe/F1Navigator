@@ -136,4 +136,25 @@ assert(e2Path.matchScore >= 80, `E-2 match score is strong (${e2Path.matchScore}
 const reportD = generatePathwayReport(candidateD, 'e2', { e2Capital: 75000 });
 assert(reportD.complianceTraps.some(t => t.includes('at risk')), 'E-2 report includes capital at-risk compliance advice');
 
+// Scenario E: Candidate with Pending EAD (No optStartDate provided)
+const candidateE = {
+  degreeLevel: "Master's",
+  major: "Computer Science & Software Engineering",
+  stemEligible: true,
+  nationality: "India",
+  graduationDate: "2025-05-15",
+  optStartDate: "", // Pending EAD
+  unemploymentUsed: 0
+};
+const timelineE = calculateTimeline(candidateE, new Date('2025-05-20'));
+assert(!isNaN(timelineE.optEnd.getTime()), 'Calculates valid OPT end date even without optStartDate');
+assert(timelineE.phase === 'Post-Graduation Pending EAD', 'Identifies Pending EAD phase correctly');
+
+// Verification of Location Tagging
+const pathsE = evaluatePathwayRecommendations(candidateE);
+const usPaths = pathsE.filter(p => !p.isOutOfUs);
+const outPaths = pathsE.filter(p => p.isOutOfUs);
+assert(usPaths.every(p => p.locationTag === 'Ways to Stay in the U.S.'), 'All in-country routes tagged "Ways to Stay in the U.S."');
+assert(outPaths.every(p => p.locationTag === '(Out of U.S. Pathway)'), 'Relocation routes tagged "(Out of U.S. Pathway)"');
+
 console.log(`\nVerification Complete: ${passed}/${total} assertions passed.`);

@@ -1,0 +1,22 @@
+/**
+* @license
+*
+* Font Family: Gambetta
+* Designed by: Paul Troppmar
+* URL: https://www.fontshare.com/fonts/gambetta
+* © 2025 Indian Type Foundry
+*
+* Gambetta Italic 
+
+*
+*/
+@font-face {
+  font-family: 'Gambetta-Italic';
+  src: url('../fonts/Gambetta-Italic.woff2') format('woff2'),
+       url('../fonts/Gambetta-Italic.woff') format('woff'),
+       url('../fonts/Gambetta-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+  font-style: italic;
+}
+

@@ -2,6 +2,9 @@
 import { CIP_STEM_MAJORS, O1A_CRITERIA, NIW_PRONGS, USCIS_FEE_SCHEDULE } from './data.js';
 import { calculateTimeline, isEligibleForTreaty, evaluatePathwayRecommendations, generatePathwayReport } from './calculator.js';
 
+// Google Sheets Web App Endpoint (Paste your deployed Google Apps Script URL here)
+export const GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx4ubXWbSQS22_-bg5D15RDWHqIsxC755RWj4_QN8sorJIhO3zZAggbjXEERPX1eIoV/exec";
+
 class F1Navigator {
   constructor() {
     this.currentStep = 1;
@@ -18,17 +21,19 @@ class F1Navigator {
   loadStoredProfile() {
     const saved = localStorage.getItem('f1_nav_profile');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch (e) { }
     }
     // Clean default state for a student
     const nextYear = new Date().getFullYear() + 1;
     return {
+      fullName: "",
+      email: "",
       degreeLevel: "Master's",
       major: "Computer Science & Software Engineering",
       stemEligible: true,
       nationality: "",
       graduationDate: `${nextYear}-05-15`,
-      optStartDate: `${nextYear}-07-01`,
+      optStartDate: "",
       unemploymentUsed: 0,
       careerTrack: "corporate",
       citations: 0,
@@ -44,7 +49,7 @@ class F1Navigator {
   loadStoredDeepDive() {
     const saved = localStorage.getItem('f1_nav_deepdive');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch (e) { }
     }
     return {};
   }
@@ -52,7 +57,7 @@ class F1Navigator {
   loadStoredMilestones() {
     const saved = localStorage.getItem('f1_nav_milestones');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch (e) { }
     }
     return {};
   }
@@ -76,6 +81,8 @@ class F1Navigator {
 
     // Step 1 Form elements
     this.profileForm = document.getElementById('profileForm');
+    this.inputFullName = document.getElementById('inputFullName');
+    this.inputEmail = document.getElementById('inputEmail');
     this.inputDegree = document.getElementById('inputDegree');
     this.inputMajor = document.getElementById('inputMajor');
     this.stemPill = document.getElementById('stemPill');
@@ -94,7 +101,7 @@ class F1Navigator {
 
     // Populate Major dropdown
     if (this.inputMajor) {
-      this.inputMajor.innerHTML = CIP_STEM_MAJORS.map(m => 
+      this.inputMajor.innerHTML = CIP_STEM_MAJORS.map(m =>
         `<option value="${m.name}" data-stem="${m.stem}">${m.name} ${m.stem ? '(STEM)' : '(Non-STEM)'}</option>`
       ).join('');
     }
@@ -113,6 +120,8 @@ class F1Navigator {
 
     this.reportContainer = document.getElementById('reportContainer');
     this.btnResetAll = document.getElementById('btnResetAll');
+    this.btnExportLeads = document.getElementById('btnExportLeads');
+    this.leadCounter = document.getElementById('leadCounter');
   }
 
   bindEvents() {
@@ -146,6 +155,20 @@ class F1Navigator {
         }
       });
     });
+
+    // Step 1 Immediate Auto-Capture on Name / Email Entry
+    if (this.inputEmail) {
+      const triggerImmediateCapture = () => {
+        const email = this.inputEmail.value.trim();
+        const name = this.inputFullName ? this.inputFullName.value.trim() : "";
+        if (email.includes('@') && email.includes('.')) {
+          this.recordImmediateLead(name, email);
+        }
+      };
+
+      this.inputEmail.addEventListener('blur', triggerImmediateCapture);
+      this.inputEmail.addEventListener('change', triggerImmediateCapture);
+    }
 
     // Step 1 Submission
     if (this.profileForm) {
@@ -185,6 +208,11 @@ class F1Navigator {
         }
       });
     }
+
+    // Lead CSV Export button
+    if (this.btnExportLeads) {
+      this.btnExportLeads.addEventListener('click', () => this.exportLeadsCSV());
+    }
   }
 
   updateStemPill(isStem) {
@@ -202,6 +230,8 @@ class F1Navigator {
 
   restoreState() {
     const p = this.profile;
+    if (this.inputFullName) this.inputFullName.value = p.fullName || "";
+    if (this.inputEmail) this.inputEmail.value = p.email || "";
     if (this.inputDegree) this.inputDegree.value = p.degreeLevel || "Master's";
     if (this.inputMajor) this.inputMajor.value = p.major || "Computer Science & Software Engineering";
     if (this.inputNationality) this.inputNationality.value = p.nationality || "";
@@ -214,6 +244,8 @@ class F1Navigator {
     if (this.inputPatents) this.inputPatents.value = p.patents || 0;
     if (this.inputSalary) this.inputSalary.value = p.salaryAmount || 120000;
     if (this.inputSavings) this.inputSavings.value = p.liquidSavings || 25000;
+
+    this.updateLeadCounter();
 
     // Career track restore
     if (p.careerTrack) {
@@ -266,18 +298,22 @@ class F1Navigator {
     const isStem = selectedMajorOpt.dataset.stem === 'true';
 
     const gradDateStr = this.inputGradDate.value;
+    const gradDate = gradDateStr ? new Date(gradDateStr) : new Date();
     const optStartStr = this.inputOptStart.value;
-    const optStart = new Date(optStartStr);
+    // If user does not have EAD ready, estimate start 60 days post-graduation
+    const optStart = optStartStr ? new Date(optStartStr) : new Date(gradDate.getTime() + 60 * 86400000);
     const optEnd = new Date(optStart.getTime() + 365 * 86400000);
     const stemEnd = isStem ? new Date(optEnd.getTime() + 730 * 86400000) : null;
 
     this.profile = {
+      fullName: this.inputFullName ? this.inputFullName.value.trim() : "",
+      email: this.inputEmail ? this.inputEmail.value.trim() : "",
       degreeLevel: this.inputDegree.value,
       major: this.inputMajor.value,
       stemEligible: isStem,
       nationality: this.inputNationality.value.trim(),
       graduationDate: gradDateStr,
-      optStartDate: optStartStr,
+      optStartDate: optStartStr || "",
       optEndDate: optEnd.toISOString().split('T')[0],
       stemOptEndDate: stemEnd ? stemEnd.toISOString().split('T')[0] : null,
       unemploymentUsed: Number(this.inputUnemploymentUsed.value) || 0,
@@ -292,6 +328,7 @@ class F1Navigator {
     };
 
     this.saveProfile();
+    this.recordLead(this.profile);
     this.renderStep2Pathways();
     this.goToStep(2);
   }
@@ -305,12 +342,12 @@ class F1Navigator {
       const treatyCheck = isEligibleForTreaty(p.nationality);
       this.step2ProfileSummary.innerHTML = `
         <div>
-          <strong style="color: var(--text-main);">${p.degreeLevel}</strong> in ${p.major}
-          &bull; <span>${p.stemEligible ? 'STEM (36 Mos Total OPT)' : 'Standard 12 Mos OPT'}</span>
+          <strong style="color: var(--brand-charcoal);">${p.degreeLevel}</strong> in ${p.major}
+          &bull; <span>${p.stemEligible ? 'STEM Track (+24 Mos Extension)' : 'Standard 12 Mos OPT'}</span>
         </div>
         <div>
-          Citizenship: <strong style="color: var(--text-main);">${p.nationality}</strong>
-          ${treatyCheck.hasTreaty ? `<span style="margin-left: 6px; padding: 2px 7px; border-radius: 4px; background: rgba(99, 102, 241, 0.15); color: #818cf8; font-weight: 600; font-size: 11px;">${treatyCheck.visaType.split(' ')[0]} Treaty Eligible</span>` : ''}
+          Citizenship: <strong style="color: var(--brand-charcoal);">${p.nationality}</strong>
+          ${treatyCheck.hasTreaty ? `<span style="margin-left: 6px; padding: 3px 8px; border-radius: var(--radius-sm); background: rgba(20, 74, 134, 0.08); color: var(--brand-cobalt); font-weight: 600; font-size: 11px; border: 1px solid var(--primary-border);">${treatyCheck.visaType.split(' ')[0]} Treaty Eligible</span>` : ''}
         </div>
       `;
     }
@@ -321,7 +358,10 @@ class F1Navigator {
       <div class="pathway-card" id="card-pathway-${item.id}">
         <div class="pathway-card-top">
           <div class="pathway-title-group">
-            <span class="pathway-category">${item.category}</span>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;">
+              <span class="pathway-category">${item.category}</span>
+              <span class="location-badge ${item.isOutOfUs ? 'out-of-us' : 'in-us'}">${item.locationTag || (item.isOutOfUs ? '(Out of U.S. Pathway)' : 'Ways to Stay in the U.S.')}</span>
+            </div>
             <h3>${item.name}</h3>
           </div>
           <div class="score-badge">
@@ -333,26 +373,26 @@ class F1Navigator {
         <p class="pathway-summary">${item.summary}</p>
 
         <div class="pathway-reasons-box">
-          <strong>Why this fits:</strong> ${item.whyYouQualify}
+          <strong>Why this fits your profile:</strong> ${item.whyYouQualify}
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 12px; margin: 4px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 12.5px; margin: 4px 0;">
           <div>
-            <span style="color: var(--emerald); font-weight: 600;">Advantages:</span>
-            <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 3px; line-height: 1.45;">
+            <span style="color: var(--brand-sea-green); font-weight: 700;">Strategic Advantages:</span>
+            <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
               ${item.pros.map(pro => `<li>${pro}</li>`).join('')}
             </ul>
           </div>
           <div>
-            <span style="color: var(--rose); font-weight: 600;">Considerations:</span>
-            <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 3px; line-height: 1.45;">
+            <span style="color: var(--brand-charcoal); font-weight: 700;">Key Considerations:</span>
+            <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
               ${item.cons.map(con => `<li>${con}</li>`).join('')}
             </ul>
           </div>
         </div>
 
         <div class="pathway-card-footer">
-          <span>Est. Approval Timeline: <strong style="color: var(--text-main);">${item.estimatedTimeline}</strong></span>
+          <span>Estimated Filing Timeline: <strong style="color: var(--brand-charcoal);">${item.estimatedTimeline}</strong></span>
           <button type="button" class="btn btn-primary btn-sm btn-select-pathway" data-id="${item.id}">
             Select Pathway &amp; Continue →
           </button>
@@ -389,8 +429,8 @@ class F1Navigator {
       titleText = 'O-1A Evidentiary Rubric & Sponsor Details';
       fieldsContainer.innerHTML = `
         <div class="form-section-title">USCIS 8-Criteria Self-Assessment</div>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-          USCIS regulations require establishing at least <strong>3 out of 8 criteria</strong> plus passing the Kazarian final merits determination. Check what you currently have or plan to build:
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px;">
+          USCIS regulations require establishing at least <strong>3 out of 8 regulatory criteria</strong> followed by a Kazarian final merits determination. Check your existing evidence or targeted areas:
         </p>
         
         <div>
@@ -554,7 +594,7 @@ class F1Navigator {
 
   handleStep3Submit() {
     const o1Checks = Array.from(document.querySelectorAll('input[name="o1Criteria"]:checked')).map(c => c.value);
-    
+
     this.deepDiveDetails = {
       pathwayId: this.selectedPathway,
       o1Criteria: o1Checks,
@@ -584,19 +624,28 @@ class F1Navigator {
     const timeline = reportData.timeline;
 
     container.innerHTML = `
-      <!-- Header Banner -->
+      <!-- Header Banner with INVISA Branding -->
       <div class="report-header-banner">
         <div class="report-headline">
-          <h2>Executive Strategy &amp; Financial Roadmap</h2>
+          <div class="report-tagline">F1 Navigator &bull; Executive Brief</div>
+          <h2>Strategic Action Plan &amp; Financial Runway</h2>
           <p>
-            Candidate: <strong>${p.degreeLevel} (${p.major})</strong> &bull; Citizenship: <strong>${p.nationality}</strong> &bull; Target: <strong>${this.getPathwayTitle(this.selectedPathway)}</strong>
+            Candidate: <strong>${p.fullName ? p.fullName + ' &bull; ' : ''}${p.degreeLevel} (${p.major})</strong>
+            ${p.email ? `&bull; Email: <strong>${p.email}</strong>` : ''}
+            &bull; Citizenship: <strong>${p.nationality}</strong>
+            <br>
+            Target Pathway: <strong>${this.getPathwayTitle(this.selectedPathway)}</strong>
+            <span class="location-badge ${reportData.isOutOfUs ? 'out-of-us' : 'in-us'}" style="margin-left: 8px; font-size: 11px;">${reportData.locationTag || (reportData.isOutOfUs ? '(Out of U.S. Pathway)' : 'Ways to Stay in the U.S.')}</span>
           </p>
         </div>
         <div class="report-actions">
+          <button type="button" class="btn btn-primary btn-sm" id="btnJumpToEmail">
+            ✉ Email My Report
+          </button>
           <button type="button" class="btn btn-secondary btn-sm" id="btnExportCalendar">
             Export Deadlines (.ics)
           </button>
-          <button type="button" class="btn btn-primary btn-sm" id="btnPrintReport">
+          <button type="button" class="btn btn-accent btn-sm" id="btnPrintReport">
             Print / Save PDF
           </button>
         </div>
@@ -605,28 +654,28 @@ class F1Navigator {
       <!-- Quick Executive Metrics Grid -->
       <div class="report-grid-summary">
         <div class="stat-pill">
-          <span class="stat-label">Active Authorization</span>
-          <span class="stat-val" style="color: #38bdf8;">${timeline.daysAuthRemaining} Days</span>
+          <span class="stat-label">Active Work Authorization</span>
+          <span class="stat-val" style="color: var(--brand-cobalt);">${timeline.daysAuthRemaining} Days</span>
           <span style="font-size: 11px; color: var(--text-muted);">Through ${timeline.activeAuthorizationEnd.toLocaleDateString()}</span>
         </div>
 
         <div class="stat-pill">
           <span class="stat-label">Allowable Unemployment</span>
-          <span class="stat-val" style="color: ${timeline.unemploymentRemaining < 25 ? '#fb7185' : '#34d399'};">
-            ${timeline.unemploymentRemaining} Days Left
+          <span class="stat-val" style="color: ${timeline.unemploymentRemaining < 25 ? 'var(--danger)' : 'var(--brand-sea-green)'};">
+            ${timeline.unemploymentRemaining} Days Cushion
           </span>
           <span style="font-size: 11px; color: var(--text-muted);">${timeline.unemploymentUsed} of ${timeline.maxUnemployment} days burned</span>
         </div>
 
         <div class="stat-pill">
-          <span class="stat-label">Total Estimated Budget</span>
-          <span class="stat-val">$${reportData.totalEstimatedCost.toLocaleString()}</span>
+          <span class="stat-label">Estimated Transition Capital</span>
+          <span class="stat-val" style="color: var(--brand-cobalt);">$${reportData.totalEstimatedCost.toLocaleString()}</span>
           <span style="font-size: 11px; color: var(--text-muted);">Gov fees ($${reportData.totalGovernmentFees.toLocaleString()}) + Legal</span>
         </div>
 
         <div class="stat-pill">
           <span class="stat-label">Financial Runway</span>
-          <span class="stat-val" style="color: ${reportData.runwayMonths < 3 ? '#fb7185' : '#38bdf8'};">
+          <span class="stat-val" style="color: ${reportData.runwayMonths < 3 ? 'var(--danger)' : 'var(--brand-sea-green)'};">
             ${reportData.runwayMonths} Months
           </span>
           <span style="font-size: 11px; color: var(--text-muted);">Burn: $${reportData.totalMonthlyBurn.toLocaleString()}/mo</span>
@@ -635,46 +684,46 @@ class F1Navigator {
 
       <!-- Section 1: Executive Strategy Brief -->
       <div class="report-section">
-        <h3 class="report-section-title">1. Strategic Overview &amp; Legal Basis</h3>
-        <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+        <h3 class="report-section-title">1. Strategic Overview &amp; Regulatory Basis</h3>
+        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
           ${reportData.strategyBrief}
         </p>
 
-        <div class="callout-box info" style="margin-top: 14px;">
-          <strong>Why this bypasses the H-1B lottery:</strong> Unlike the 85,000 annual lottery cap which faces ~75% rejection rates, the <strong>${this.getPathwayTitle(this.selectedPathway)}</strong> relies strictly on regulatory qualifications and bilateral treaties, providing year-round filing and expedited adjudication.
+        <div class="callout-box info" style="margin-top: 16px;">
+          <strong>Why this bypasses the general H-1B lottery:</strong> Unlike the annual 85,000 cap which faces heavy lottery rejection rates, the <strong>${this.getPathwayTitle(this.selectedPathway)}</strong> relies strictly on merit-based regulatory qualifications or bilateral treaties under Title 8 CFR, enabling year-round filing and expedited adjudication.
         </div>
       </div>
 
       <!-- Section 2: Status Runway & Critical Timing -->
       <div class="report-section">
-        <h3 class="report-section-title">2. Status Runway &amp; Timeline Deadlines</h3>
+        <h3 class="report-section-title">2. Status Runway &amp; Critical Filing Windows</h3>
         
-        <div style="margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;">
-            <span>OPT Unemployment Fuel Level</span>
-            <span style="font-family: var(--font-mono); color: var(--text-main);">${timeline.unemploymentUsed} / ${timeline.maxUnemployment} Days</span>
+        <div style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span>OPT Unemployment Reserve</span>
+            <span style="font-family: var(--font-h2); color: var(--brand-charcoal); font-weight: 600;">${timeline.unemploymentUsed} / ${timeline.maxUnemployment} Days Used</span>
           </div>
           <div class="fuel-bar-wrap">
             <div class="fuel-bar-fill ${timeline.unemploymentBurnPercent > 65 ? 'danger' : timeline.unemploymentBurnPercent > 35 ? 'warning' : ''}" style="width: ${timeline.unemploymentBurnPercent}%;"></div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 13px; color: var(--text-muted);">
-          <div>
-            <span style="color: var(--text-main); font-weight: 600;">Form I-765 Earliest Filing Date:</span><br>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13.5px; color: var(--text-muted);">
+          <div style="background: var(--bg-subtle); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <span style="color: var(--brand-charcoal); font-weight: 600;">Form I-765 Earliest Filing Date:</span><br>
             ${timeline.earliestOptFile.toLocaleDateString()} (90 days before graduation)
           </div>
-          <div>
-            <span style="color: var(--text-main); font-weight: 600;">Form I-765 Final Filing Deadline:</span><br>
+          <div style="background: var(--bg-subtle); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <span style="color: var(--brand-charcoal); font-weight: 600;">Form I-765 Final Filing Deadline:</span><br>
             ${timeline.latestOptFile.toLocaleDateString()} (60 days post-graduation)
           </div>
-          <div>
-            <span style="color: var(--text-main); font-weight: 600;">Initial 12-Month OPT End Date:</span><br>
+          <div style="background: var(--bg-subtle); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <span style="color: var(--brand-charcoal); font-weight: 600;">Initial 12-Month OPT End Date:</span><br>
             ${timeline.optEnd.toLocaleDateString()}
           </div>
-          <div>
-            <span style="color: var(--text-main); font-weight: 600;">STEM OPT Extension Expiration:</span><br>
-            ${timeline.isStem && timeline.stemEnd ? timeline.stemEnd.toLocaleDateString() : 'N/A (Non-STEM degree)'}
+          <div style="background: var(--bg-subtle); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <span style="color: var(--brand-charcoal); font-weight: 600;">STEM OPT Extension Expiration:</span><br>
+            ${timeline.isStem && timeline.stemEnd ? timeline.stemEnd.toLocaleDateString() : 'N/A (Standard 12-Month Degree)'}
           </div>
         </div>
       </div>
@@ -683,13 +732,13 @@ class F1Navigator {
       <div class="report-section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
           <h3 class="report-section-title" style="margin-bottom: 0;">3. Step-by-Step Action Plan</h3>
-          <span style="font-size: 11px; color: var(--text-subtle);">Check off items as completed</span>
+          <span style="font-size: 11.5px; color: var(--text-subtle); font-family: var(--font-h2);">Check items off as completed</span>
         </div>
 
         <div class="milestones-timeline">
           ${reportData.milestones.map(m => {
-            const isDone = !!this.checkedMilestones[m.step];
-            return `
+      const isDone = !!this.checkedMilestones[m.step];
+      return `
               <div class="milestone-row ${isDone ? 'completed' : ''}" id="milestone-row-${m.step}">
                 <input type="checkbox" class="milestone-checkbox" data-step="${m.step}" ${isDone ? 'checked' : ''}>
                 <div class="milestone-info">
@@ -701,19 +750,19 @@ class F1Navigator {
                 </div>
               </div>
             `;
-          }).join('')}
+    }).join('')}
         </div>
       </div>
 
       <!-- Section 4: Itemized Financial Budget -->
       <div class="report-section">
-        <h3 class="report-section-title">4. Itemized Financial Breakdown &amp; Filing Budget</h3>
+        <h3 class="report-section-title">4. Itemized Transition Capital &amp; Filing Budget</h3>
         
         <table class="finance-table">
           <thead>
             <tr>
               <th>Expense Item</th>
-              <th style="text-align: right;">Amount</th>
+              <th style="text-align: right;">Estimated Cost</th>
             </tr>
           </thead>
           <tbody>
@@ -724,7 +773,7 @@ class F1Navigator {
               </tr>
             `).join('')}
             <tr>
-              <td>Estimated Immigration Legal Counsel &amp; Brief Preparation</td>
+              <td>Estimated Immigration Legal Counsel &amp; Evidentiary Brief Preparation</td>
               <td class="amount-cell">~$${reportData.estimatedLegalFee.toLocaleString()}</td>
             </tr>
             <tr class="finance-total-row">
@@ -733,27 +782,79 @@ class F1Navigator {
             </tr>
           </tbody>
         </table>
+      </div>
 
-        <div style="margin-top: 16px; padding: 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); font-size: 12.5px; color: var(--text-muted);">
-          <span>Liquid Savings: <strong>$${reportData.liquidSavings.toLocaleString()}</strong> &bull; Monthly Outflow: <strong>$${reportData.totalMonthlyBurn.toLocaleString()}/mo</strong> &bull; Runway: <strong>${reportData.runwayMonths} Months</strong></span>
+      <!-- Section 5: Financial Safety Net & Monthly Runway Analysis -->
+      <div class="report-section">
+        <h3 class="report-section-title">5. Financial Safety Net (Runway)</h3>
+        
+        <div class="callout-box ${reportData.runwayMonths < 3 ? 'warning' : 'success'}">
+          <div style="font-weight: 700; margin-bottom: 4px; font-size: 14px;">
+            Financial Safety Net (Runway): ${reportData.runwayMonths} Months of Cushion
+          </div>
+          <div>${reportData.safetyNetMessage}</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; font-size: 13px;">
+          <div style="padding: 12px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-subtle); font-weight: 600;">Liquid Savings</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--brand-charcoal); margin-top: 2px;">$${reportData.liquidSavings.toLocaleString()}</div>
+          </div>
+          <div style="padding: 12px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-subtle); font-weight: 600;">Monthly Living Cost</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--brand-charcoal); margin-top: 2px;">$${reportData.monthlyLiving.toLocaleString()}</div>
+          </div>
+          <div style="padding: 12px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-subtle); font-weight: 600;">Monthly Healthcare Buffer</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--brand-charcoal); margin-top: 2px;">$${reportData.healthcareGap.toLocaleString()}</div>
+          </div>
         </div>
       </div>
 
-      <!-- Section 5: Regulatory Compliance Guardrails -->
+      <!-- Section 6: Regulatory Compliance Guardrails -->
       <div class="report-section">
-        <h3 class="report-section-title">5. Critical Compliance Guardrails &amp; Traps</h3>
-        <ul style="font-size: 13px; color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+        <h3 class="report-section-title">6. Critical Regulatory Safeguards</h3>
+        <ul style="font-size: 13.5px; color: var(--text-muted); padding-left: 20px; line-height: 1.65;">
           ${reportData.complianceTraps.map(trap => `<li>${trap}</li>`).join('')}
         </ul>
       </div>
 
+      <!-- Section 7: Save & Email Strategic Roadmap -->
+      <div class="report-section" id="reportEmailSection" style="background: linear-gradient(135deg, rgba(20, 74, 134, 0.05) 0%, rgba(162, 188, 227, 0.12) 100%); border: 1.5px solid var(--primary-border);">
+        <h3 class="report-section-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span>7. Delivery &amp; Ongoing Strategy Alerts</span>
+          <span class="location-badge in-us" style="font-size: 11px;">Save Assessment</span>
+        </h3>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px;">
+          Lock in your personalized filing calendar, operational milestones, and budget forecast. Enter your details to record your assessment and receive future status updates:
+        </p>
+
+        <form id="reportEmailForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="reportInputName" style="font-size: 12px;">Full Name</label>
+            <input type="text" id="reportInputName" class="form-input" placeholder="e.g. Alex Chen" value="${p.fullName || ''}" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="reportInputEmail" style="font-size: 12px;">Email Address</label>
+            <input type="email" id="reportInputEmail" class="form-input" placeholder="e.g. alex@university.edu" value="${p.email || ''}" required>
+          </div>
+          <button type="submit" class="btn btn-primary" id="btnSubmitReportEmail" style="white-space: nowrap; height: 42px;">
+            ✉ Email &amp; Save Roadmap
+          </button>
+        </form>
+
+        <div id="emailConfirmationAlert" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-sm); background: rgba(13, 131, 65, 0.12); border: 1px solid var(--brand-sea-green); color: var(--brand-sea-green); font-size: 13.5px; font-weight: 500;">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
       <!-- Navigation & Action Row -->
-      <div class="btn-row" style="margin-top: 24px;">
+      <div class="btn-row" style="margin-top: 26px;">
         <button type="button" class="btn btn-secondary" id="btnBackToOptions">
           ← Change Visa Pathway
         </button>
         <button type="button" class="btn btn-secondary" id="btnEditProfileFromReport">
-          Edit Profile Inputs
+          Adjust Profile Inputs
         </button>
       </div>
     `;
@@ -763,6 +864,41 @@ class F1Navigator {
     document.getElementById('btnExportCalendar')?.addEventListener('click', () => this.exportCalendar(reportData));
     document.getElementById('btnBackToOptions')?.addEventListener('click', () => this.goToStep(2));
     document.getElementById('btnEditProfileFromReport')?.addEventListener('click', () => this.goToStep(1));
+
+    // Jump to Email Section Button
+    document.getElementById('btnJumpToEmail')?.addEventListener('click', () => {
+      const emailSec = document.getElementById('reportEmailSection');
+      if (emailSec) {
+        emailSec.scrollIntoView({ behavior: 'smooth' });
+        const emailInput = document.getElementById('reportInputEmail');
+        if (emailInput && !emailInput.value) emailInput.focus();
+      }
+    });
+
+    // Report Email Form Submission
+    const reportEmailForm = document.getElementById('reportEmailForm');
+    if (reportEmailForm) {
+      reportEmailForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const enteredName = document.getElementById('reportInputName')?.value.trim() || '';
+        const enteredEmail = document.getElementById('reportInputEmail')?.value.trim() || '';
+
+        this.profile.fullName = enteredName;
+        this.profile.email = enteredEmail;
+        this.saveProfile();
+        this.recordLead(this.profile, this.selectedPathway, true);
+
+        const alertBox = document.getElementById('emailConfirmationAlert');
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          alertBox.innerHTML = `
+            <strong>✓ Strategic Roadmap Saved &amp; Queued!</strong><br>
+            A copy of your <strong>${this.getPathwayTitle(this.selectedPathway)}</strong> action plan, filing timeline, and financial runway has been saved for <strong>${enteredEmail}</strong>.
+          `;
+          alertBox.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
 
     // Bind milestone checkboxes
     container.querySelectorAll('.milestone-checkbox').forEach(cb => {
@@ -819,6 +955,137 @@ class F1Navigator {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `F1Navigator_${this.selectedPathway || 'Immigration'}_Roadmap.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  loadLeads() {
+    const raw = localStorage.getItem('f1_nav_leads');
+    if (raw) {
+      try { return JSON.parse(raw); } catch (e) { }
+    }
+    return [];
+  }
+
+  saveLeads(leads) {
+    localStorage.setItem('f1_nav_leads', JSON.stringify(leads));
+    this.updateLeadCounter();
+  }
+
+  recordImmediateLead(name, email) {
+    if (!email || this.lastDispatchedEmail === email) return;
+    this.lastDispatchedEmail = email;
+
+    const leadData = {
+      fullName: name || 'Incomplete Profile Candidate',
+      email: email,
+      degreeLevel: this.inputDegree ? this.inputDegree.value : "Master's",
+      major: this.inputMajor ? this.inputMajor.value : "STEM Field",
+      nationality: this.inputNationality && this.inputNationality.value ? this.inputNationality.value : "Pending Selection",
+      selectedPathway: "Step 1 (In Progress)",
+      timestamp: new Date().toLocaleString(),
+      optStartDate: this.inputOptStart && this.inputOptStart.value ? this.inputOptStart.value : "Pending EAD",
+      graduationDate: this.inputGradDate && this.inputGradDate.value ? this.inputGradDate.value : "Not specified",
+      liquidSavings: this.inputSavings ? Number(this.inputSavings.value) || 0 : 0
+    };
+
+    // Save in local vault
+    const leads = this.loadLeads();
+    const existingIndex = leads.findIndex(l => l.email && l.email.toLowerCase() === email.toLowerCase());
+    if (existingIndex >= 0) {
+      leads[existingIndex] = { ...leads[existingIndex], ...leadData };
+    } else {
+      leads.push(leadData);
+    }
+    this.saveLeads(leads);
+
+    // Send immediately to Google Sheets
+    if (GOOGLE_SHEETS_WEBHOOK_URL && GOOGLE_SHEETS_WEBHOOK_URL.trim() !== "") {
+      try {
+        fetch(GOOGLE_SHEETS_WEBHOOK_URL.trim(), {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(leadData)
+        }).catch(err => console.warn("Google Sheets auto-capture note:", err));
+      } catch (err) {
+        console.warn("Google Sheets network dispatch error:", err);
+      }
+    }
+  }
+
+  recordLead(profile, pathway = null, sendEmail = false) {
+    if (!profile.email && !profile.fullName) return;
+    const leads = this.loadLeads();
+    const existingIndex = leads.findIndex(l => l.email && l.email.toLowerCase() === (profile.email || '').toLowerCase());
+    const leadData = {
+      fullName: profile.fullName || 'Anonymous Candidate',
+      email: profile.email || 'N/A',
+      degreeLevel: profile.degreeLevel || "Master's",
+      major: profile.major || 'STEM Field',
+      nationality: profile.nationality || 'Unspecified',
+      selectedPathway: pathway ? this.getPathwayTitle(pathway) : (this.selectedPathway ? this.getPathwayTitle(this.selectedPathway) : 'Pending Selection'),
+      timestamp: new Date().toLocaleString(),
+      optStartDate: profile.optStartDate || 'Pending EAD',
+      graduationDate: profile.graduationDate || '',
+      liquidSavings: profile.liquidSavings || 0,
+      sendEmail: !!sendEmail
+    };
+
+    if (existingIndex >= 0 && profile.email) {
+      leads[existingIndex] = { ...leads[existingIndex], ...leadData };
+    } else {
+      leads.push(leadData);
+    }
+    this.saveLeads(leads);
+
+    // Real-Time Dispatch to Google Sheets Webhook
+    if (GOOGLE_SHEETS_WEBHOOK_URL && GOOGLE_SHEETS_WEBHOOK_URL.trim() !== "") {
+      try {
+        fetch(GOOGLE_SHEETS_WEBHOOK_URL.trim(), {
+          method: "POST",
+          mode: "no-cors", // Bypass CORS preflight in client browsers
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(leadData)
+        }).catch(err => console.warn("Google Sheets submission note:", err));
+      } catch (err) {
+        console.warn("Google Sheets network dispatch error:", err);
+      }
+    }
+  }
+
+  updateLeadCounter() {
+    if (!this.leadCounter) return;
+    const count = this.loadLeads().length;
+    this.leadCounter.textContent = `${count}`;
+  }
+
+  exportLeadsCSV() {
+    const leads = this.loadLeads();
+    if (!leads.length) {
+      alert('No candidate leads collected yet. When candidates enter their Name & Email in Step 1 or Step 4, they will automatically be recorded here.');
+      return;
+    }
+    const headers = ['Full Name', 'Email', 'Degree', 'Major', 'Citizenship', 'Target Pathway', 'Graduation Date', 'OPT / EAD Start', 'Liquid Savings ($)', 'Recorded Timestamp'];
+    const rows = leads.map(l => [
+      `"${(l.fullName || '').replace(/"/g, '""')}"`,
+      `"${(l.email || '').replace(/"/g, '""')}"`,
+      `"${(l.degreeLevel || '').replace(/"/g, '""')}"`,
+      `"${(l.major || '').replace(/"/g, '""')}"`,
+      `"${(l.nationality || '').replace(/"/g, '""')}"`,
+      `"${(l.selectedPathway || '').replace(/"/g, '""')}"`,
+      `"${(l.graduationDate || '').replace(/"/g, '""')}"`,
+      `"${(l.optStartDate || '').replace(/"/g, '""')}"`,
+      l.liquidSavings || 0,
+      `"${l.timestamp || ''}"`
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `F1Navigator_Candidate_Leads_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
