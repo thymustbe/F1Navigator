@@ -333,6 +333,26 @@ body {
   color: var(--text-muted);
 }
 
+/* Mobile Stepper Status Line */
+.mobile-step-status {
+  display: none;
+  text-align: center;
+  font-family: var(--font-h2);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand-cobalt);
+  margin-top: 14px;
+  padding: 5px 14px;
+  background: var(--primary-subtle);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--primary-border);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* --------------------------------------------------------------------------
    6. MAIN CONTAINER & VIEWS
    -------------------------------------------------------------------------- */
@@ -519,6 +539,45 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 18px;
+}
+
+/* Responsive Grid & Utility Layout Helpers */
+.pathway-pros-cons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  font-size: 12.5px;
+  margin: 4px 0;
+}
+
+.filing-dates-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.runway-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.report-email-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.table-responsive-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
 }
 
 @media (max-width: 680px) {
@@ -1211,6 +1270,396 @@ body {
 .footer-icon {
   width: 22px;
   height: 22px;
+}
+
+/* --------------------------------------------------------------------------
+   13. COMPREHENSIVE MOBILE & TABLET RESPONSIVENESS
+   -------------------------------------------------------------------------- */
+
+/* Tablet & Intermediate Screens (681px to 860px) */
+@media (min-width: 681px) and (max-width: 860px) {
+  .main-content {
+    padding: 0 16px 70px 16px;
+  }
+
+  .card {
+    padding: 28px 24px;
+  }
+
+  .report-grid-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .runway-metrics-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .report-email-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .report-email-grid .btn {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Mobile Devices (<= 680px) */
+@media (max-width: 680px) {
+  /* Layout Root & Smooth Mobile Scroll */
+  body {
+    background-attachment: scroll;
+    font-size: 14px;
+  }
+
+  .main-content {
+    padding: 0 12px 60px 12px;
+    max-width: 100%;
+  }
+
+  /* 1. Header Overhaul */
+  .app-header {
+    padding: 10px 14px;
+  }
+
+  .header-inner {
+    gap: 8px;
+  }
+
+  .brand-block {
+    gap: 8px;
+  }
+
+  .brand-logo-img {
+    height: 28px;
+  }
+
+  .brand-divider {
+    height: 20px !important;
+  }
+
+  .brand-name {
+    font-size: 16px !important;
+  }
+
+  .brand-badge {
+    display: none; /* Hide secondary badge on mobile to prevent overflow */
+  }
+
+  .header-status-group {
+    gap: 8px;
+  }
+
+  .save-indicator span:last-child {
+    display: none; /* Show only the green pulse dot on small mobile */
+  }
+
+  .save-indicator {
+    gap: 0;
+  }
+
+  #btnResetAll {
+    padding: 5px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* 2. Stepper Overhaul */
+  .stepper-nav {
+    margin: 16px auto 18px auto;
+    padding: 0 8px;
+  }
+
+  .stepper-list::before {
+    left: 20px;
+    right: 20px;
+    top: 14px;
+  }
+
+  .step-item {
+    padding: 0 4px;
+    gap: 4px;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .step-label {
+    display: none; /* Inactive and active text labels hidden in favor of active banner */
+  }
+
+  .mobile-step-status {
+    display: inline-block;
+  }
+
+  /* 3. Cards & Headers */
+  .card {
+    padding: 20px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .card::before {
+    width: 180px;
+    height: 110px;
+    opacity: 0.08;
+  }
+
+  .card-header-clean {
+    margin-bottom: 18px;
+  }
+
+  .card-title-clean {
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .card-subtitle-clean {
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  /* 4. Form Controls & iOS Safari Auto-Zoom Prevention */
+  .form-section-title {
+    margin: 22px 0 12px 0;
+    font-size: 11.5px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Must be at least 16px font-size to prevent iOS Safari auto-zooming */
+  .form-input, .form-select, .form-textarea {
+    font-size: 16px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .form-hint {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .radio-cards-group {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .radio-card {
+    padding: 14px;
+  }
+
+  /* 5. Full-Width Action Buttons */
+  .btn-row {
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin-top: 22px;
+    padding-top: 16px;
+  }
+
+  .btn {
+    width: 100%;
+    white-space: normal;
+    padding: 13px 18px;
+    font-size: 14px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .btn-sm {
+    padding: 9px 14px;
+    font-size: 12.5px;
+  }
+
+  /* 6. Step 2: Pathway Match Cards */
+  .pathway-card {
+    padding: 18px 14px;
+    gap: 14px;
+  }
+
+  .pathway-card-top {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .score-badge {
+    align-self: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    min-width: auto;
+  }
+
+  .score-num {
+    font-size: 18px;
+  }
+
+  .score-text {
+    margin-top: 0;
+  }
+
+  .pathway-title-group h3 {
+    font-size: 18px;
+  }
+
+  .pathway-pros-cons {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .pathway-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .pathway-card-footer .btn {
+    width: 100%;
+  }
+
+  #step2ProfileSummary {
+    padding: 12px 14px !important;
+    font-size: 12.5px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  /* 7. Step 3: Evidentiary Criteria */
+  .criteria-item {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .criteria-title {
+    font-size: 13.5px;
+  }
+
+  .criteria-desc {
+    font-size: 12px;
+  }
+
+  /* 8. Step 4: Strategic Report Overhaul */
+  .report-header-banner {
+    padding: 20px 16px;
+    gap: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-header-banner::before {
+    display: none;
+  }
+
+  .report-headline h2 {
+    font-size: 21px;
+    line-height: 1.25;
+  }
+
+  .report-headline p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .report-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .report-actions .btn {
+    width: 100%;
+  }
+
+  .report-grid-summary {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-pill {
+    padding: 12px 14px;
+  }
+
+  .stat-val {
+    font-size: 18px;
+  }
+
+  .report-section {
+    padding: 18px 14px;
+    margin-bottom: 16px;
+  }
+
+  .report-section-title {
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .filing-dates-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .runway-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .report-email-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .report-email-grid .btn {
+    width: 100%;
+    height: 44px;
+  }
+
+  .milestone-row {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .milestone-header-line {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .milestone-title {
+    font-size: 13.5px;
+  }
+
+  .milestone-target {
+    font-size: 10.5px;
+  }
+
+  .milestone-desc {
+    font-size: 12px;
+  }
+
+  .finance-table th, .finance-table td {
+    padding: 9px 8px;
+    font-size: 12px;
+  }
+
+  .minimal-footer {
+    margin-top: 32px;
+    padding: 20px 10px 30px 10px;
+    font-size: 11.5px;
+  }
 }
 
 /* Print Overrides */

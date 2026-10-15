@@ -290,6 +290,18 @@ class F1Navigator {
       view.classList.toggle('active', idx + 1 === stepNumber);
     });
 
+    // Update Mobile Stepper Status Line
+    const stepTitles = {
+      1: "Your Profile",
+      2: "Visa Matches",
+      3: "Tailor Strategy",
+      4: "Strategic Report"
+    };
+    const mobileStatus = document.getElementById('mobileStepStatus');
+    if (mobileStatus) {
+      mobileStatus.innerHTML = `Step ${stepNumber} of 4 &bull; ${stepTitles[stepNumber] || ''}`;
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -376,7 +388,7 @@ class F1Navigator {
           <strong>Why this fits your profile:</strong> ${item.whyYouQualify}
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 12.5px; margin: 4px 0;">
+        <div class="pathway-pros-cons">
           <div>
             <span style="color: var(--brand-sea-green); font-weight: 700;">Strategic Advantages:</span>
             <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
@@ -708,7 +720,7 @@ class F1Navigator {
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13.5px; color: var(--text-muted);">
+        <div class="filing-dates-grid">
           <div style="background: var(--bg-subtle); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
             <span style="color: var(--brand-charcoal); font-weight: 600;">Form I-765 Earliest Filing Date:</span><br>
             ${timeline.earliestOptFile.toLocaleDateString()} (90 days before graduation)
@@ -758,30 +770,32 @@ class F1Navigator {
       <div class="report-section">
         <h3 class="report-section-title">4. Itemized Transition Capital &amp; Filing Budget</h3>
         
-        <table class="finance-table">
-          <thead>
-            <tr>
-              <th>Expense Item</th>
-              <th style="text-align: right;">Estimated Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${reportData.governmentFees.map(f => `
+        <div class="table-responsive-wrap">
+          <table class="finance-table">
+            <thead>
               <tr>
-                <td>${f.name}</td>
-                <td class="amount-cell">$${f.amount.toLocaleString()}</td>
+                <th>Expense Item</th>
+                <th style="text-align: right;">Estimated Cost</th>
               </tr>
-            `).join('')}
-            <tr>
-              <td>Estimated Immigration Legal Counsel &amp; Evidentiary Brief Preparation</td>
-              <td class="amount-cell">~$${reportData.estimatedLegalFee.toLocaleString()}</td>
-            </tr>
-            <tr class="finance-total-row">
-              <td>Total Estimated Transition Capital Needed</td>
-              <td class="amount-cell">$${reportData.totalEstimatedCost.toLocaleString()}</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${reportData.governmentFees.map(f => `
+                <tr>
+                  <td>${f.name}</td>
+                  <td class="amount-cell">$${f.amount.toLocaleString()}</td>
+                </tr>
+              `).join('')}
+              <tr>
+                <td>Estimated Immigration Legal Counsel &amp; Evidentiary Brief Preparation</td>
+                <td class="amount-cell">~$${reportData.estimatedLegalFee.toLocaleString()}</td>
+              </tr>
+              <tr class="finance-total-row">
+                <td>Total Estimated Transition Capital Needed</td>
+                <td class="amount-cell">$${reportData.totalEstimatedCost.toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Section 5: Financial Safety Net & Monthly Runway Analysis -->
@@ -795,7 +809,7 @@ class F1Navigator {
           <div>${reportData.safetyNetMessage}</div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; font-size: 13px;">
+        <div class="runway-metrics-grid">
           <div style="padding: 12px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
             <div style="font-size: 11px; text-transform: uppercase; color: var(--text-subtle); font-weight: 600;">Liquid Savings</div>
             <div style="font-size: 16px; font-weight: 700; color: var(--brand-charcoal); margin-top: 2px;">$${reportData.liquidSavings.toLocaleString()}</div>
@@ -829,7 +843,7 @@ class F1Navigator {
           Lock in your personalized filing calendar, operational milestones, and budget forecast. Enter your details to record your assessment and receive future status updates:
         </p>
 
-        <form id="reportEmailForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
+        <form id="reportEmailForm" class="report-email-grid">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" for="reportInputName" style="font-size: 12px;">Full Name</label>
             <input type="text" id="reportInputName" class="form-input" placeholder="e.g. Alex Chen" value="${p.fullName || ''}" required>
