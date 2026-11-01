@@ -70,8 +70,11 @@ All form inputs, selected pathways, deep-dive answers, and checked action plan t
 ---
 
 ## 🎨 Modern Minimalist Design System
-- Linear / Stripe / Vercel-inspired dark mode aesthetic (`#080c14` canvas, `#0f1624` cards, hairline borders).
-- Modern typography via Google Fonts (`Inter`, `Outfit`, `JetBrains Mono`).
+- Official INVISA Brand Identity & Palette (Charcoal `#231F20`, Cobalt `#144A86`, Moonmist `#F7F5FA`, Sea Green `#0D8341`).
+- Typography Stack:
+  - **Headings (H1/H3)**: Gambetta / Newsreader (Serif)
+  - **Subheaders & Body (H2/Body)**: Outfit (Sans-serif)
+  - **Important Design Guideline**: *Petit Formal Script* (Pettit Format) has been dropped entirely from the project and must never be reintroduced or used.
 - Clean visual hierarchy with zero clutter, no garish colors, and no intrusive badges.
 
 ---

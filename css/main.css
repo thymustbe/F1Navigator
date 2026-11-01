@@ -5,8 +5,10 @@
 
 /* --------------------------------------------------------------------------
    1. FONT DEFINITIONS & IMPORTS
+   NOTE: Petit Formal Script has been permanently retired and dropped.
+   Do NOT reintroduce or use Petit Formal Script anywhere in this codebase.
    -------------------------------------------------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Petit+Formal+Script&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=gambetta@400,500,600,700,401,501,601,701&display=swap');
 
 /* Local Font Fallbacks */
@@ -29,14 +31,6 @@
   font-family: 'Outfit';
   src: url('../assets/fonts/Outfit/outfit-v15-latin-600.woff2') format('woff2');
   font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Petit Formal Script';
-  src: url('../assets/fonts/Petit_Formal_Script/petit-formal-script-v19-latin-regular.woff2') format('woff2');
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -104,10 +98,10 @@
   --danger-subtle: rgba(197, 48, 48, 0.08);
   --danger-border: rgba(197, 48, 48, 0.22);
 
-  /* Typography Pairing as defined in INVISA Brand Kit */
+  /* Typography Pairing (Petit Formal Script dropped permanently) */
   --font-h1: 'Gambetta', 'Newsreader', 'Times New Roman', Georgia, serif;
   --font-h2: 'Outfit', sans-serif;
-  --font-h3: 'Petit Formal Script', 'Newsreader', cursive;
+  --font-h3: 'Newsreader', 'Times New Roman', Georgia, serif;
   --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Outfit', sans-serif;
   --font-mono: 'Outfit', monospace;
@@ -467,6 +461,7 @@ body {
   font-size: 1.15em;
   color: var(--brand-cobalt);
   font-weight: normal;
+  font-style: italic;
   padding: 0 4px;
 }
 
