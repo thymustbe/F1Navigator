@@ -27,61 +27,89 @@
 <body>
 
   <!-- ======================================================== -->
-  <!-- 1. FLOATING MAIN SITE NAVIGATION (INVISA-US.COM SITEMAP) -->
+  <!-- SINGLE UNIFIED APP HEADER (WITH MAIN SITE MENU DROPDOWN) -->
   <!-- ======================================================== -->
-  <header class="main-site-nav-wrapper">
-    <nav class="main-site-nav" aria-label="Main Site Navigation">
-      <a href="https://invisa-us.com/" class="main-site-brand" title="INVISA Homepage">
-        <img src="assets/logos/INVISA%20Logo_Horizontal_Color.svg" alt="INVISA - Investor Visa Support and Advice" class="main-site-logo">
-      </a>
-
-      <div class="main-site-menu" id="mainSiteMenu">
-        <a href="https://invisa-us.com/" class="nav-link">Home</a>
-        <a href="https://invisa-us.com/about" class="nav-link">About</a>
-        <a href="https://invisa-us.com/solutions" class="nav-link">Solutions</a>
-        <a href="https://invisa-us.com/resources" class="nav-link">Resources</a>
-        <a href="https://invisa-us.com/community" class="nav-link">Community</a>
-        <a href="https://invisa-us.com/contact" class="nav-link">Contact</a>
-        <a href="https://invisa-us.com/#waitlist" class="nav-btn-waitlist">Join the Waitlist</a>
-      </div>
-
-      <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        <span class="hamburger-bar"></span>
-        <span class="hamburger-bar"></span>
-        <span class="hamburger-bar"></span>
-      </button>
-    </nav>
-  </header>
-
-  <!-- ======================================================== -->
-  <!-- 2. TOOL APP SUB-HEADER (MATCHING WEB APP SCREENSHOT)     -->
-  <!-- ======================================================== -->
-  <div class="app-sub-header">
+  <header class="app-header">
     <div class="header-inner">
       <div class="tool-brand-group">
-        <a href="https://f1-navigator.invisa-us.com/" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-          <img src="assets/logos/INVISA%20Logo_Icon_Color.svg" alt="INVISA" style="height: 28px; width: auto;">
-          <span style="font-family: var(--font-h1); font-size: 19px; font-weight: 700; color: var(--brand-charcoal); letter-spacing: -0.01em;">F1 NAVIGATOR</span>
+        <a href="https://f1-navigator.invisa-us.com/" class="brand-link" title="F1 Navigator Home">
+          <img src="assets/logos/INVISA%20Logo_Horizontal_Color.svg" alt="INVISA" class="brand-logo-img">
         </a>
         <span class="tool-badge-pill">F-1 STRATEGY ENGINE</span>
       </div>
 
       <div class="tool-actions-group">
-        <div class="save-indicator" style="margin-right: 4px;">
+        <div class="save-indicator">
           <span class="save-dot"></span>
           <span>Auto-saved</span>
         </div>
+
+        <!-- Single Menu Dropdown connecting to main invisa-us.com site -->
+        <div class="site-menu-dropdown-wrap" id="siteMenuWrap">
+          <button type="button" class="btn-tool-action dropdown-trigger" id="btnSiteMenu" aria-expanded="false" aria-haspopup="true" title="Explore INVISA main site menu">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <span>Main Site</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu Card -->
+          <div class="site-menu-dropdown" id="siteMenuDropdown">
+            <div class="dropdown-header">
+              <span class="dropdown-header-title">INVISA Main Site</span>
+              <span class="dropdown-header-sub">invisa-us.com</span>
+            </div>
+            <div class="dropdown-links-list">
+              <a href="https://invisa-us.com/" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                <span>Home</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              <a href="https://invisa-us.com/about" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                <span>About</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              <a href="https://invisa-us.com/solutions" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                <span>Solutions</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              <a href="https://invisa-us.com/resources" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                <span>Resources</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              <a href="https://invisa-us.com/community" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                <span>Community</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              <a href="https://invisa-us.com/contact" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                <span>Contact</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </div>
+            <div class="dropdown-footer">
+              <a href="https://invisa-us.com/#waitlist" class="dropdown-waitlist-btn" target="_blank" rel="noopener noreferrer">
+                Join the Waitlist &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
         <button id="btnResetAll" class="btn-tool-action" title="Clear inputs and start fresh">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          Reset All
+          <span>Reset All</span>
         </button>
+
         <button id="btnOpenFaq" class="btn-tool-action" title="Non-lottery visa guidance &amp; FAQs">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Visa FAQ
+          <span>Visa FAQ</span>
         </button>
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- ======================================================== -->
   <!-- 3. PROGRESS STEPPER (WEB APP WIZARD WITH / SEPARATORS)   -->
@@ -492,7 +520,7 @@
       </div>
       <p class="footer-disclaimer">
         Grounded scenario modeling based on Title 8 of the Code of Federal Regulations (8 CFR). Not formal legal advice.
-        Hosted at <a href="https://f1-navigator.invisa-us.com/" style="color: var(--brand-cobalt); text-decoration: none;">f1-navigator.invisa-us.com</a> &bull; Main: <a href="https://invisa-us.com/" style="color: var(--brand-cobalt); text-decoration: none;">invisa-us.com</a>
+        Hosted at <a href="https://f1-navigator.invisa-us.com/" style="color: var(--brand-cobalt); text-decoration: none;">f1-navigator.invisa-us.com</a> &bull; Main: <a href="https://invisa-us.com/" target="_blank" rel="noopener noreferrer" style="color: var(--brand-cobalt); text-decoration: none;">invisa-us.com</a>
       </p>
     </footer>
 

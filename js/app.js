@@ -123,9 +123,10 @@ class F1Navigator {
     this.faqModalOverlay = document.getElementById('faqModalOverlay');
     this.faqModalClose = document.getElementById('faqModalClose');
 
-    // Main Site Mobile Navigation
-    this.navMobileToggle = document.getElementById('navMobileToggle');
-    this.mainSiteMenu = document.getElementById('mainSiteMenu');
+    // Main Site Dropdown Menu
+    this.btnSiteMenu = document.getElementById('btnSiteMenu');
+    this.siteMenuWrap = document.getElementById('siteMenuWrap');
+    this.siteMenuDropdown = document.getElementById('siteMenuDropdown');
 
     // Web App Dock Controls
     this.appBottomDock = document.getElementById('appBottomDock');
@@ -220,17 +221,25 @@ class F1Navigator {
       });
     }
 
-    // Mobile Navigation Menu Toggle
-    if (this.navMobileToggle && this.mainSiteMenu) {
-      this.navMobileToggle.addEventListener('click', (e) => {
+    // Main Site Dropdown Menu Toggle
+    if (this.btnSiteMenu && this.siteMenuWrap) {
+      this.btnSiteMenu.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isOpen = this.mainSiteMenu.classList.toggle('open');
-        this.navMobileToggle.setAttribute('aria-expanded', String(isOpen));
+        const isOpen = this.siteMenuWrap.classList.toggle('open');
+        this.btnSiteMenu.setAttribute('aria-expanded', String(isOpen));
       });
+
       document.addEventListener('click', (e) => {
-        if (this.mainSiteMenu.classList.contains('open') && !this.mainSiteMenu.contains(e.target)) {
-          this.mainSiteMenu.classList.remove('open');
-          this.navMobileToggle?.setAttribute('aria-expanded', 'false');
+        if (this.siteMenuWrap.classList.contains('open') && !this.siteMenuWrap.contains(e.target)) {
+          this.siteMenuWrap.classList.remove('open');
+          this.btnSiteMenu.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.siteMenuWrap.classList.contains('open')) {
+          this.siteMenuWrap.classList.remove('open');
+          this.btnSiteMenu.setAttribute('aria-expanded', 'false');
         }
       });
     }
