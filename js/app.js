@@ -1,8 +1,10 @@
 // F1 Navigator - Core Application Controller
 import { CIP_STEM_MAJORS, O1A_CRITERIA, NIW_PRONGS, USCIS_FEE_SCHEDULE } from './data.js';
 import { calculateTimeline, isEligibleForTreaty, evaluatePathwayRecommendations, generatePathwayReport } from './calculator.js';
+import { downloadDocxReport } from './docxExport.js';
+import { downloadPngReport } from './pngExport.js';
 
-// Google Sheets Web App Endpoint (Paste your deployed Google Apps Script URL here)
+// Google Sheets Web App Endpoint (Optional Lead Record Storage)
 export const GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx4ubXWbSQS22_-bg5D15RDWHqIsxC755RWj4_QN8sorJIhO3zZAggbjXEERPX1eIoV/exec";
 
 class F1Navigator {
@@ -23,7 +25,6 @@ class F1Navigator {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { }
     }
-    // Clean default state for a student
     const nextYear = new Date().getFullYear() + 1;
     return {
       fullName: "",
@@ -75,7 +76,7 @@ class F1Navigator {
   }
 
   initElements() {
-    // Stepper indicators
+    // Stepper indicators & Views
     this.stepIndicators = document.querySelectorAll('.step-item');
     this.stepViews = document.querySelectorAll('.step-view');
 
@@ -109,19 +110,29 @@ class F1Navigator {
     // Step 2 & 3 & 4 Containers
     this.step2ProfileSummary = document.getElementById('step2ProfileSummary');
     this.pathwaysContainer = document.getElementById('pathwaysContainer');
-    this.btnBackToStep1 = document.getElementById('btnBackToStep1');
 
     this.selectedPathwayTag = document.getElementById('selectedPathwayTag');
     this.step3Title = document.getElementById('step3Title');
     this.deepDiveDynamicFields = document.getElementById('deepDiveDynamicFields');
     this.deepDiveForm = document.getElementById('deepDiveForm');
     this.inputMonthlyLiving = document.getElementById('inputMonthlyLiving');
-    this.btnBackToStep2 = document.getElementById('btnBackToStep2');
 
     this.reportContainer = document.getElementById('reportContainer');
     this.btnResetAll = document.getElementById('btnResetAll');
-    this.btnExportLeads = document.getElementById('btnExportLeads');
-    this.leadCounter = document.getElementById('leadCounter');
+    this.btnOpenFaq = document.getElementById('btnOpenFaq');
+    this.faqModalOverlay = document.getElementById('faqModalOverlay');
+    this.faqModalClose = document.getElementById('faqModalClose');
+
+    // Main Site Mobile Navigation
+    this.navMobileToggle = document.getElementById('navMobileToggle');
+    this.mainSiteMenu = document.getElementById('mainSiteMenu');
+
+    // Web App Dock Controls
+    this.appBottomDock = document.getElementById('appBottomDock');
+    this.dockBtnBack = document.getElementById('dockBtnBack');
+    this.dockStepIndicator = document.getElementById('dockStepIndicator');
+    this.dockNextGroup = document.getElementById('dockNextGroup');
+    this.dockBtnNext = document.getElementById('dockBtnNext');
   }
 
   bindEvents() {
@@ -129,7 +140,6 @@ class F1Navigator {
     this.stepIndicators.forEach(item => {
       item.addEventListener('click', () => {
         const targetStep = Number(item.dataset.step);
-        // Only allow clicking to steps that have been reached
         if (targetStep < this.currentStep || (targetStep === 2 && this.profile.nationality) || (targetStep === 3 && this.selectedPathway)) {
           this.goToStep(targetStep);
         }
@@ -156,36 +166,12 @@ class F1Navigator {
       });
     });
 
-    // Step 1 Immediate Auto-Capture on Name / Email Entry
-    if (this.inputEmail) {
-      const triggerImmediateCapture = () => {
-        const email = this.inputEmail.value.trim();
-        const name = this.inputFullName ? this.inputFullName.value.trim() : "";
-        if (email.includes('@') && email.includes('.')) {
-          this.recordImmediateLead(name, email);
-        }
-      };
-
-      this.inputEmail.addEventListener('blur', triggerImmediateCapture);
-      this.inputEmail.addEventListener('change', triggerImmediateCapture);
-    }
-
     // Step 1 Submission
     if (this.profileForm) {
       this.profileForm.addEventListener('submit', (e) => {
         e.preventDefault();
         this.handleStep1Submit();
       });
-    }
-
-    // Step 2 Back button
-    if (this.btnBackToStep1) {
-      this.btnBackToStep1.addEventListener('click', () => this.goToStep(1));
-    }
-
-    // Step 3 Back button
-    if (this.btnBackToStep2) {
-      this.btnBackToStep2.addEventListener('click', () => this.goToStep(2));
     }
 
     // Step 3 Submission
@@ -204,14 +190,87 @@ class F1Navigator {
           localStorage.removeItem('f1_nav_selected_pathway');
           localStorage.removeItem('f1_nav_deepdive');
           localStorage.removeItem('f1_nav_milestones');
+          localStorage.removeItem('f1_nav_step');
           window.location.reload();
         }
       });
     }
 
-    // Lead CSV Export button
-    if (this.btnExportLeads) {
-      this.btnExportLeads.addEventListener('click', () => this.exportLeadsCSV());
+    // FAQ Modal Open / Close
+    if (this.btnOpenFaq && this.faqModalOverlay) {
+      this.btnOpenFaq.addEventListener('click', () => {
+        this.faqModalOverlay.classList.add('open');
+      });
+    }
+    if (this.faqModalClose && this.faqModalOverlay) {
+      this.faqModalClose.addEventListener('click', () => {
+        this.faqModalOverlay.classList.remove('open');
+      });
+    }
+    if (this.faqModalOverlay) {
+      this.faqModalOverlay.addEventListener('click', (e) => {
+        if (e.target === this.faqModalOverlay) {
+          this.faqModalOverlay.classList.remove('open');
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.faqModalOverlay.classList.contains('open')) {
+          this.faqModalOverlay.classList.remove('open');
+        }
+      });
+    }
+
+    // Mobile Navigation Menu Toggle
+    if (this.navMobileToggle && this.mainSiteMenu) {
+      this.navMobileToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = this.mainSiteMenu.classList.toggle('open');
+        this.navMobileToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+      document.addEventListener('click', (e) => {
+        if (this.mainSiteMenu.classList.contains('open') && !this.mainSiteMenu.contains(e.target)) {
+          this.mainSiteMenu.classList.remove('open');
+          this.navMobileToggle?.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    // Web App Dock: Back Button
+    if (this.dockBtnBack) {
+      this.dockBtnBack.addEventListener('click', () => {
+        if (this.currentStep === 2) this.goToStep(1);
+        else if (this.currentStep === 3) this.goToStep(2);
+        else if (this.currentStep === 4) this.goToStep(3);
+      });
+    }
+
+    // Web App Dock: Next Button delegation
+    if (this.dockNextGroup) {
+      this.dockNextGroup.addEventListener('click', (e) => {
+        const targetBtn = e.target.closest('button');
+        if (!targetBtn) return;
+
+        if (targetBtn.id === 'dockBtnNext') {
+          if (this.currentStep === 1) {
+            if (this.profileForm.reportValidity()) {
+              this.handleStep1Submit();
+            }
+          } else if (this.currentStep === 2) {
+            const pathwayToUse = this.selectedPathway || 'o1a';
+            this.handlePathwaySelection(pathwayToUse);
+          } else if (this.currentStep === 3) {
+            if (this.deepDiveForm.reportValidity()) {
+              this.handleStep3Submit();
+            }
+          }
+        } else if (targetBtn.id === 'dockBtnDownloadPng') {
+          const reportData = generatePathwayReport(this.profile, this.selectedPathway, this.deepDiveDetails);
+          downloadPngReport(this.profile, reportData, this.getPathwayTitle(this.selectedPathway));
+        } else if (targetBtn.id === 'dockBtnDownloadDocx') {
+          const reportData = generatePathwayReport(this.profile, this.selectedPathway, this.deepDiveDetails);
+          downloadDocxReport(this.profile, reportData, this.getPathwayTitle(this.selectedPathway));
+        }
+      });
     }
   }
 
@@ -219,12 +278,12 @@ class F1Navigator {
     if (!this.stemPill) return;
     if (isStem) {
       this.stemPill.textContent = 'STEM Eligible (+24 Mos)';
-      this.stemPill.style.background = 'rgba(16, 185, 129, 0.12)';
-      this.stemPill.style.color = '#10b981';
+      this.stemPill.style.background = 'rgba(13, 131, 65, 0.1)';
+      this.stemPill.style.color = 'var(--brand-sea-green)';
     } else {
       this.stemPill.textContent = 'Non-STEM (12 Mos Total)';
-      this.stemPill.style.background = 'rgba(245, 158, 11, 0.12)';
-      this.stemPill.style.color = '#f59e0b';
+      this.stemPill.style.background = 'rgba(245, 184, 25, 0.15)';
+      this.stemPill.style.color = '#B45309';
     }
   }
 
@@ -245,9 +304,6 @@ class F1Navigator {
     if (this.inputSalary) this.inputSalary.value = p.salaryAmount || 120000;
     if (this.inputSavings) this.inputSavings.value = p.liquidSavings || 25000;
 
-    this.updateLeadCounter();
-
-    // Career track restore
     if (p.careerTrack) {
       this.trackCards.forEach(c => {
         c.classList.toggle('selected', c.dataset.value === p.careerTrack);
@@ -255,13 +311,11 @@ class F1Navigator {
       if (this.inputCareerTrack) this.inputCareerTrack.value = p.careerTrack;
     }
 
-    // Trigger major change to set initial STEM pill
     if (this.inputMajor) {
       const selectedOpt = this.inputMajor.selectedOptions[0];
       if (selectedOpt) this.updateStemPill(selectedOpt.dataset.stem === 'true');
     }
 
-    // If user already has a nationality and selected pathway, restore to report
     const savedStep = Number(localStorage.getItem('f1_nav_step')) || 1;
     if (p.nationality && this.selectedPathway && savedStep === 4) {
       this.renderReport();
@@ -278,31 +332,96 @@ class F1Navigator {
     this.currentStep = stepNumber;
     localStorage.setItem('f1_nav_step', stepNumber);
 
-    // Update Stepper Nav
+    // Update Stepper Navigation
     this.stepIndicators.forEach(item => {
       const s = Number(item.dataset.step);
       item.classList.toggle('active', s === stepNumber);
       item.classList.toggle('completed', s < stepNumber);
     });
 
-    // Toggle Views
+    // Toggle Step Views
     this.stepViews.forEach((view, idx) => {
       view.classList.toggle('active', idx + 1 === stepNumber);
     });
 
-    // Update Mobile Stepper Status Line
-    const stepTitles = {
-      1: "Your Profile",
-      2: "Visa Matches",
-      3: "Tailor Strategy",
-      4: "Strategic Report"
-    };
-    const mobileStatus = document.getElementById('mobileStepStatus');
-    if (mobileStatus) {
-      mobileStatus.innerHTML = `Step ${stepNumber} of 4 &bull; ${stepTitles[stepNumber] || ''}`;
-    }
+    // Update Persistent Bottom Dock
+    this.updateBottomDock(stepNumber);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateBottomDock(stepNumber) {
+    if (!this.appBottomDock) return;
+
+    // Back Button State
+    if (this.dockBtnBack) {
+      if (stepNumber === 1) {
+        this.dockBtnBack.classList.add('hidden');
+        this.dockBtnBack.disabled = true;
+      } else {
+        this.dockBtnBack.classList.remove('hidden');
+        this.dockBtnBack.disabled = false;
+        if (stepNumber === 4) {
+          this.dockBtnBack.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Back to Strategy</span>
+          `;
+        } else {
+          this.dockBtnBack.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Back</span>
+          `;
+        }
+      }
+    }
+
+    // Step Indicator Text
+    if (this.dockStepIndicator) {
+      const stepNames = {
+        1: 'Profile',
+        2: 'Visa Matches',
+        3: 'Tailor Strategy',
+        4: 'Strategic Report'
+      };
+      this.dockStepIndicator.textContent = `Step ${stepNumber} of 4 • ${stepNames[stepNumber] || ''}`;
+    }
+
+    // Right Action Buttons in Dock
+    if (this.dockNextGroup) {
+      if (stepNumber === 1) {
+        this.dockNextGroup.innerHTML = `
+          <button type="button" class="dock-btn-next" id="dockBtnNext">
+            <span>Next: Visa Matches</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        `;
+      } else if (stepNumber === 2) {
+        this.dockNextGroup.innerHTML = `
+          <button type="button" class="dock-btn-next" id="dockBtnNext">
+            <span>Next: Tailor Strategy</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        `;
+      } else if (stepNumber === 3) {
+        this.dockNextGroup.innerHTML = `
+          <button type="button" class="dock-btn-next" id="dockBtnNext">
+            <span>Next: Generate Report</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        `;
+      } else if (stepNumber === 4) {
+        this.dockNextGroup.innerHTML = `
+          <button type="button" class="dock-btn-next" id="dockBtnDownloadPng" title="Download High-Resolution PNG graphic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Download .PNG</span>
+          </button>
+          <button type="button" class="dock-btn-secondary" id="dockBtnDownloadDocx" title="Download Editable Microsoft Word document">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Download .DOCX</span>
+          </button>
+        `;
+      }
+    }
   }
 
   handleStep1Submit() {
@@ -312,7 +431,6 @@ class F1Navigator {
     const gradDateStr = this.inputGradDate.value;
     const gradDate = gradDateStr ? new Date(gradDateStr) : new Date();
     const optStartStr = this.inputOptStart.value;
-    // If user does not have EAD ready, estimate start 60 days post-graduation
     const optStart = optStartStr ? new Date(optStartStr) : new Date(gradDate.getTime() + 60 * 86400000);
     const optEnd = new Date(optStart.getTime() + 365 * 86400000);
     const stemEnd = isStem ? new Date(optEnd.getTime() + 730 * 86400000) : null;
@@ -349,7 +467,6 @@ class F1Navigator {
     const p = this.profile;
     const recommendations = evaluatePathwayRecommendations(p);
 
-    // Profile summary pill strip
     if (this.step2ProfileSummary) {
       const treatyCheck = isEligibleForTreaty(p.nationality);
       this.step2ProfileSummary.innerHTML = `
@@ -366,57 +483,74 @@ class F1Navigator {
 
     if (!this.pathwaysContainer) return;
 
-    this.pathwaysContainer.innerHTML = recommendations.map(item => `
-      <div class="pathway-card" id="card-pathway-${item.id}">
-        <div class="pathway-card-top">
-          <div class="pathway-title-group">
-            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;">
-              <span class="pathway-category">${item.category}</span>
-              <span class="location-badge ${item.isOutOfUs ? 'out-of-us' : 'in-us'}">${item.locationTag || (item.isOutOfUs ? '(Out of U.S. Pathway)' : 'Ways to Stay in the U.S.')}</span>
+    if (!this.selectedPathway && recommendations.length > 0) {
+      this.selectedPathway = recommendations[0].id;
+    }
+
+    this.pathwaysContainer.innerHTML = recommendations.map(item => {
+      const isSelected = this.selectedPathway === item.id;
+      return `
+        <div class="pathway-card ${isSelected ? 'selected' : ''}" id="card-pathway-${item.id}">
+          <div class="pathway-card-top">
+            <div class="pathway-title-group">
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;">
+                <span class="pathway-category">${item.category}</span>
+                <span class="location-badge ${item.isOutOfUs ? 'out-of-us' : 'in-us'}">${item.locationTag || (item.isOutOfUs ? '(Out of U.S. Pathway)' : 'Ways to Stay in the U.S.')}</span>
+              </div>
+              <h3>${item.name}</h3>
             </div>
-            <h3>${item.name}</h3>
+            <div class="score-badge">
+              <span class="score-num">${item.matchScore}%</span>
+              <span class="score-text">Match</span>
+            </div>
           </div>
-          <div class="score-badge">
-            <span class="score-num">${item.matchScore}%</span>
-            <span class="score-text">Match</span>
+
+          <p class="pathway-summary">${item.summary}</p>
+
+          <div class="pathway-reasons-box">
+            <strong>Why this fits your profile:</strong> ${item.whyYouQualify}
+          </div>
+
+          <div class="pathway-pros-cons">
+            <div>
+              <span style="color: var(--brand-sea-green); font-weight: 700;">Strategic Advantages:</span>
+              <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
+                ${item.pros.map(pro => `<li>${pro}</li>`).join('')}
+              </ul>
+            </div>
+            <div>
+              <span style="color: var(--brand-charcoal); font-weight: 700;">Key Considerations:</span>
+              <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
+                ${item.cons.map(con => `<li>${con}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+
+          <div class="pathway-card-footer">
+            <span>Estimated Filing Timeline: <strong style="color: var(--brand-charcoal);">${item.estimatedTimeline}</strong></span>
+            <button type="button" class="btn btn-primary btn-sm btn-select-pathway" data-id="${item.id}">
+              Select Pathway &amp; Continue →
+            </button>
           </div>
         </div>
+      `;
+    }).join('');
 
-        <p class="pathway-summary">${item.summary}</p>
-
-        <div class="pathway-reasons-box">
-          <strong>Why this fits your profile:</strong> ${item.whyYouQualify}
-        </div>
-
-        <div class="pathway-pros-cons">
-          <div>
-            <span style="color: var(--brand-sea-green); font-weight: 700;">Strategic Advantages:</span>
-            <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
-              ${item.pros.map(pro => `<li>${pro}</li>`).join('')}
-            </ul>
-          </div>
-          <div>
-            <span style="color: var(--brand-charcoal); font-weight: 700;">Key Considerations:</span>
-            <ul style="padding-left: 16px; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
-              ${item.cons.map(con => `<li>${con}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-
-        <div class="pathway-card-footer">
-          <span>Estimated Filing Timeline: <strong style="color: var(--brand-charcoal);">${item.estimatedTimeline}</strong></span>
-          <button type="button" class="btn btn-primary btn-sm btn-select-pathway" data-id="${item.id}">
-            Select Pathway &amp; Continue →
-          </button>
-        </div>
-      </div>
-    `).join('');
-
-    // Bind pathway select buttons
+    // Bind card selection
     this.pathwaysContainer.querySelectorAll('.btn-select-pathway').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const pathwayId = e.currentTarget.dataset.id;
         this.handlePathwaySelection(pathwayId);
+      });
+    });
+
+    this.pathwaysContainer.querySelectorAll('.pathway-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        const id = card.id.replace('card-pathway-', '');
+        this.selectedPathway = id;
+        this.pathwaysContainer.querySelectorAll('.pathway-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
       });
     });
   }
@@ -476,14 +610,14 @@ class F1Navigator {
         <div class="form-group">
           <label class="form-label" for="inputNiwDomain">Primary Endeavor Domain</label>
           <select id="inputNiwDomain" class="form-select">
-            <option value="ai">Artificial Intelligence & Machine Learning</option>
-            <option value="quantum">Quantum Computing & Microelectronics</option>
-            <option value="biotech">Biotechnology, Genomics & Healthcare</option>
-            <option value="clean_energy">Clean Energy & Climate Technologies</option>
-            <option value="cyber">Cybersecurity & Critical Infrastructure</option>
+            <option value="ai">Artificial Intelligence &amp; Machine Learning</option>
+            <option value="quantum">Quantum Computing &amp; Microelectronics</option>
+            <option value="biotech">Biotechnology, Genomics &amp; Healthcare</option>
+            <option value="clean_energy">Clean Energy &amp; Climate Technologies</option>
+            <option value="cyber">Cybersecurity &amp; Critical Infrastructure</option>
             <option value="other">Other High-Impact Scientific/Technical Field</option>
           </select>
-          <div class="form-hint">Aligning directly with White House Critical & Emerging Technologies provides substantial evidentiary weight.</div>
+          <div class="form-hint">Aligning directly with White House Critical &amp; Emerging Technologies provides substantial evidentiary weight.</div>
         </div>
 
         <div class="form-group">
@@ -570,7 +704,6 @@ class F1Navigator {
         </div>
       `;
     } else {
-      // L-1
       tagText = 'L-1 Corporate Transferee Bridge';
       titleText = 'Multinational Employer & Relocation Details';
       fieldsContainer.innerHTML = `
@@ -596,7 +729,6 @@ class F1Navigator {
     if (this.selectedPathwayTag) this.selectedPathwayTag.textContent = tagText;
     if (this.step3Title) this.step3Title.textContent = titleText;
 
-    // Checkbox styling listener for O-1
     fieldsContainer.querySelectorAll('.criteria-item input[type=checkbox]').forEach(cb => {
       cb.addEventListener('change', (e) => {
         e.target.closest('.criteria-item').classList.toggle('checked', e.target.checked);
@@ -618,7 +750,6 @@ class F1Navigator {
       e2Capital: document.getElementById('inputE2Capital')?.value
     };
 
-    // Update monthly living in profile
     this.profile.monthlyLiving = this.deepDiveDetails.monthlyLiving;
     this.saveProfile();
     this.saveDeepDive();
@@ -634,6 +765,7 @@ class F1Navigator {
     if (!container) return;
 
     const timeline = reportData.timeline;
+    const pathwayTitle = this.getPathwayTitle(this.selectedPathway);
 
     container.innerHTML = `
       <!-- Header Banner with INVISA Branding -->
@@ -643,16 +775,20 @@ class F1Navigator {
           <h2>Strategic Action Plan &amp; Financial Runway</h2>
           <p>
             Candidate: <strong>${p.fullName ? p.fullName + ' &bull; ' : ''}${p.degreeLevel} (${p.major})</strong>
-            ${p.email ? `&bull; Email: <strong>${p.email}</strong>` : ''}
             &bull; Citizenship: <strong>${p.nationality}</strong>
             <br>
-            Target Pathway: <strong>${this.getPathwayTitle(this.selectedPathway)}</strong>
+            Target Pathway: <strong>${pathwayTitle}</strong>
             <span class="location-badge ${reportData.isOutOfUs ? 'out-of-us' : 'in-us'}" style="margin-left: 8px; font-size: 11px;">${reportData.locationTag || (reportData.isOutOfUs ? '(Out of U.S. Pathway)' : 'Ways to Stay in the U.S.')}</span>
           </p>
         </div>
         <div class="report-actions">
-          <button type="button" class="btn btn-primary btn-sm" id="btnJumpToEmail">
-            ✉ Email My Report
+          <button type="button" class="btn btn-primary btn-sm" id="btnDownloadPng">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Download .PNG
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadDocx">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Download .DOCX
           </button>
           <button type="button" class="btn btn-secondary btn-sm" id="btnExportCalendar">
             Export Deadlines (.ics)
@@ -702,7 +838,7 @@ class F1Navigator {
         </p>
 
         <div class="callout-box info" style="margin-top: 16px;">
-          <strong>Why this bypasses the general H-1B lottery:</strong> Unlike the annual 85,000 cap which faces heavy lottery rejection rates, the <strong>${this.getPathwayTitle(this.selectedPathway)}</strong> relies strictly on merit-based regulatory qualifications or bilateral treaties under Title 8 CFR, enabling year-round filing and expedited adjudication.
+          <strong>Why this bypasses the general H-1B lottery:</strong> Unlike the annual 85,000 cap which faces heavy lottery rejection rates, the <strong>${pathwayTitle}</strong> relies strictly on merit-based regulatory qualifications or bilateral treaties under Title 8 CFR, enabling year-round filing and expedited adjudication.
         </div>
       </div>
 
@@ -749,8 +885,8 @@ class F1Navigator {
 
         <div class="milestones-timeline">
           ${reportData.milestones.map(m => {
-      const isDone = !!this.checkedMilestones[m.step];
-      return `
+            const isDone = !!this.checkedMilestones[m.step];
+            return `
               <div class="milestone-row ${isDone ? 'completed' : ''}" id="milestone-row-${m.step}">
                 <input type="checkbox" class="milestone-checkbox" data-step="${m.step}" ${isDone ? 'checked' : ''}>
                 <div class="milestone-info">
@@ -762,7 +898,7 @@ class F1Navigator {
                 </div>
               </div>
             `;
-    }).join('')}
+          }).join('')}
         </div>
       </div>
 
@@ -833,86 +969,73 @@ class F1Navigator {
         </ul>
       </div>
 
-      <!-- Section 7: Save & Email Strategic Roadmap -->
-      <div class="report-section" id="reportEmailSection" style="background: linear-gradient(135deg, rgba(20, 74, 134, 0.05) 0%, rgba(162, 188, 227, 0.12) 100%); border: 1.5px solid var(--primary-border);">
-        <h3 class="report-section-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <span>7. Delivery &amp; Ongoing Strategy Alerts</span>
-          <span class="location-badge in-us" style="font-size: 11px;">Save Assessment</span>
-        </h3>
-        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px;">
-          Lock in your personalized filing calendar, operational milestones, and budget forecast. Enter your details to record your assessment and receive future status updates:
+      <!-- Section 7: Export & Offline Downloads Center (Replaces Email Sending) -->
+      <div class="report-export-center">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <span style="font-family: var(--font-h2); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brand-cobalt); font-weight: 700;">Direct File Downloads</span>
+            <h3 style="font-family: var(--font-h1); font-size: 22px; color: var(--brand-charcoal); margin: 2px 0 6px 0;">Export Your Strategic Roadmap &amp; Legal Brief</h3>
+          </div>
+          <span class="location-badge in-us" style="font-size: 11px;">Offline Export Center</span>
+        </div>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 0;">
+          Download your personalized timeline, evidentiary checklist, and transition budget directly to your device. No email delivery required.
         </p>
 
-        <form id="reportEmailForm" class="report-email-grid">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" for="reportInputName" style="font-size: 12px;">Full Name</label>
-            <input type="text" id="reportInputName" class="form-input" placeholder="e.g. Alex Chen" value="${p.fullName || ''}" required>
+        <div class="export-grid">
+          <!-- Card 1: PNG Infographic -->
+          <div class="export-card">
+            <div>
+              <div class="export-card-header">
+                <div class="export-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div>
+                  <div class="export-card-title">Executive Brief Graphic (.PNG)</div>
+                  <div class="export-card-desc">High-resolution 2x visual summary infographic of your immigration timeline, selected pathway, critical milestones, and budget. Ideal for mobile sharing and quick reference.</div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="cardBtnDownloadPng" style="width: 100%; justify-content: center; margin-top: 12px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Executive .PNG
+            </button>
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" for="reportInputEmail" style="font-size: 12px;">Email Address</label>
-            <input type="email" id="reportInputEmail" class="form-input" placeholder="e.g. alex@university.edu" value="${p.email || ''}" required>
-          </div>
-          <button type="submit" class="btn btn-primary" id="btnSubmitReportEmail" style="white-space: nowrap; height: 42px;">
-            ✉ Email &amp; Save Roadmap
-          </button>
-        </form>
 
-        <div id="emailConfirmationAlert" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-sm); background: rgba(13, 131, 65, 0.12); border: 1px solid var(--brand-sea-green); color: var(--brand-sea-green); font-size: 13.5px; font-weight: 500;">
-          <!-- Injected via JS -->
+          <!-- Card 2: DOCX Word Document -->
+          <div class="export-card">
+            <div>
+              <div class="export-card-header">
+                <div class="export-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div>
+                  <div class="export-card-title">Full Regulatory Brief (.DOCX)</div>
+                  <div class="export-card-desc">Complete editable Microsoft Word document formatted for immigration attorneys and employers, with full Title 8 CFR citations, itemized budget table, and milestone checklist.</div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="cardBtnDownloadDocx" style="width: 100%; justify-content: center; margin-top: 12px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Full .DOCX Brief
+            </button>
+          </div>
         </div>
-      </div>
-
-      <!-- Navigation & Action Row -->
-      <div class="btn-row" style="margin-top: 26px;">
-        <button type="button" class="btn btn-secondary" id="btnBackToOptions">
-          ← Change Visa Pathway
-        </button>
-        <button type="button" class="btn btn-secondary" id="btnEditProfileFromReport">
-          Adjust Profile Inputs
-        </button>
       </div>
     `;
 
-    // Bind report events
+    // Bind report download actions
+    const doDownloadPng = () => downloadPngReport(this.profile, reportData, pathwayTitle);
+    const doDownloadDocx = () => downloadDocxReport(this.profile, reportData, pathwayTitle);
+
+    document.getElementById('btnDownloadPng')?.addEventListener('click', doDownloadPng);
+    document.getElementById('cardBtnDownloadPng')?.addEventListener('click', doDownloadPng);
+
+    document.getElementById('btnDownloadDocx')?.addEventListener('click', doDownloadDocx);
+    document.getElementById('cardBtnDownloadDocx')?.addEventListener('click', doDownloadDocx);
+
     document.getElementById('btnPrintReport')?.addEventListener('click', () => window.print());
     document.getElementById('btnExportCalendar')?.addEventListener('click', () => this.exportCalendar(reportData));
-    document.getElementById('btnBackToOptions')?.addEventListener('click', () => this.goToStep(2));
-    document.getElementById('btnEditProfileFromReport')?.addEventListener('click', () => this.goToStep(1));
-
-    // Jump to Email Section Button
-    document.getElementById('btnJumpToEmail')?.addEventListener('click', () => {
-      const emailSec = document.getElementById('reportEmailSection');
-      if (emailSec) {
-        emailSec.scrollIntoView({ behavior: 'smooth' });
-        const emailInput = document.getElementById('reportInputEmail');
-        if (emailInput && !emailInput.value) emailInput.focus();
-      }
-    });
-
-    // Report Email Form Submission
-    const reportEmailForm = document.getElementById('reportEmailForm');
-    if (reportEmailForm) {
-      reportEmailForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const enteredName = document.getElementById('reportInputName')?.value.trim() || '';
-        const enteredEmail = document.getElementById('reportInputEmail')?.value.trim() || '';
-
-        this.profile.fullName = enteredName;
-        this.profile.email = enteredEmail;
-        this.saveProfile();
-        this.recordLead(this.profile, this.selectedPathway, true);
-
-        const alertBox = document.getElementById('emailConfirmationAlert');
-        if (alertBox) {
-          alertBox.style.display = 'block';
-          alertBox.innerHTML = `
-            <strong>✓ Strategic Roadmap Saved &amp; Queued!</strong><br>
-            A copy of your <strong>${this.getPathwayTitle(this.selectedPathway)}</strong> action plan, filing timeline, and financial runway has been saved for <strong>${enteredEmail}</strong>.
-          `;
-          alertBox.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    }
 
     // Bind milestone checkboxes
     container.querySelectorAll('.milestone-checkbox').forEach(cb => {
@@ -953,20 +1076,22 @@ class F1Navigator {
       ics += "END:VEVENT\r\n";
     };
 
-    addEvent("Earliest Form I-765 Filing Window (90d Pre-Grad)", timeline.earliestOptFile, "Submit OPT request to DSO and file Form I-765 online with USCIS.");
-    addEvent("Official Graduation Date", timeline.gradDate, "Graduation milestone.");
-    addEvent("Latest Form I-765 Filing Deadline", timeline.latestOptFile, "USCIS must receive Form I-765 within 60 days of graduation and within 30 days of DSO I-20 signature.");
+    addEvent("Form I-765 OPT Window Opens", timeline.earliestOptFile, "Earliest date to submit Form I-765 for post-completion OPT (90 days before graduation).");
+    addEvent("Graduation Date", timeline.gradDate, "Official program completion date indicated on Form I-20.");
+    addEvent("Final OPT Filing Deadline", timeline.latestOptFile, "Final statutory deadline to file Form I-765 with USCIS (60 days post-graduation).");
     addEvent("OPT 12-Month Expiration", timeline.optEnd, "Initial work authorization end date. Must have STEM extension or non-lottery petition active.");
 
     if (timeline.isStem && timeline.stemEnd) {
-      addEvent("STEM OPT Filing Window Opens", timeline.stemFilingWindowStart, "Submit Form I-983 to DSO to obtain STEM recommendation I-20.");
-      addEvent("STEM OPT 24-Month Expiration", timeline.stemEnd, "Final OPT deadline. Transition must be fully approved.");
+      addEvent("STEM OPT Filing Window Opens", timeline.stemFilingWindowStart, "Earliest date to submit 24-month STEM extension Form I-765 (90 days prior to initial OPT expiration).");
+      addEvent("STEM OPT Extension Expiration", timeline.stemEnd, "Final STEM OPT work authorization end date.");
     }
 
-    ics += "END:VCALENDAR\r\n";
+    addEvent("Final Departure / Grace Period End", timeline.gracePeriodEnd, "End of 60-day post-OPT grace period. Must depart U.S., transfer SEVIS, or have non-lottery change of status pending.");
 
-    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
+    ics += "END:VCALENDAR";
+
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `F1Navigator_${this.selectedPathway || 'Immigration'}_Roadmap.ics`;
     document.body.appendChild(link);
@@ -984,52 +1109,9 @@ class F1Navigator {
 
   saveLeads(leads) {
     localStorage.setItem('f1_nav_leads', JSON.stringify(leads));
-    this.updateLeadCounter();
   }
 
-  recordImmediateLead(name, email) {
-    if (!email || this.lastDispatchedEmail === email) return;
-    this.lastDispatchedEmail = email;
-
-    const leadData = {
-      fullName: name || 'Incomplete Profile Candidate',
-      email: email,
-      degreeLevel: this.inputDegree ? this.inputDegree.value : "Master's",
-      major: this.inputMajor ? this.inputMajor.value : "STEM Field",
-      nationality: this.inputNationality && this.inputNationality.value ? this.inputNationality.value : "Pending Selection",
-      selectedPathway: "Step 1 (In Progress)",
-      timestamp: new Date().toLocaleString(),
-      optStartDate: this.inputOptStart && this.inputOptStart.value ? this.inputOptStart.value : "Pending EAD",
-      graduationDate: this.inputGradDate && this.inputGradDate.value ? this.inputGradDate.value : "Not specified",
-      liquidSavings: this.inputSavings ? Number(this.inputSavings.value) || 0 : 0
-    };
-
-    // Save in local vault
-    const leads = this.loadLeads();
-    const existingIndex = leads.findIndex(l => l.email && l.email.toLowerCase() === email.toLowerCase());
-    if (existingIndex >= 0) {
-      leads[existingIndex] = { ...leads[existingIndex], ...leadData };
-    } else {
-      leads.push(leadData);
-    }
-    this.saveLeads(leads);
-
-    // Send immediately to Google Sheets
-    if (GOOGLE_SHEETS_WEBHOOK_URL && GOOGLE_SHEETS_WEBHOOK_URL.trim() !== "") {
-      try {
-        fetch(GOOGLE_SHEETS_WEBHOOK_URL.trim(), {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(leadData)
-        }).catch(err => console.warn("Google Sheets auto-capture note:", err));
-      } catch (err) {
-        console.warn("Google Sheets network dispatch error:", err);
-      }
-    }
-  }
-
-  recordLead(profile, pathway = null, sendEmail = false) {
+  recordLead(profile, pathway = null) {
     if (!profile.email && !profile.fullName) return;
     const leads = this.loadLeads();
     const existingIndex = leads.findIndex(l => l.email && l.email.toLowerCase() === (profile.email || '').toLowerCase());
@@ -1043,8 +1125,7 @@ class F1Navigator {
       timestamp: new Date().toLocaleString(),
       optStartDate: profile.optStartDate || 'Pending EAD',
       graduationDate: profile.graduationDate || '',
-      liquidSavings: profile.liquidSavings || 0,
-      sendEmail: !!sendEmail
+      liquidSavings: profile.liquidSavings || 0
     };
 
     if (existingIndex >= 0 && profile.email) {
@@ -1054,59 +1135,21 @@ class F1Navigator {
     }
     this.saveLeads(leads);
 
-    // Real-Time Dispatch to Google Sheets Webhook
+    // Optional silent backup to Google Sheets (no email sending triggered)
     if (GOOGLE_SHEETS_WEBHOOK_URL && GOOGLE_SHEETS_WEBHOOK_URL.trim() !== "") {
       try {
         fetch(GOOGLE_SHEETS_WEBHOOK_URL.trim(), {
           method: "POST",
-          mode: "no-cors", // Bypass CORS preflight in client browsers
+          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(leadData)
-        }).catch(err => console.warn("Google Sheets submission note:", err));
-      } catch (err) {
-        console.warn("Google Sheets network dispatch error:", err);
-      }
+        }).catch(() => {});
+      } catch (err) {}
     }
-  }
-
-  updateLeadCounter() {
-    if (!this.leadCounter) return;
-    const count = this.loadLeads().length;
-    this.leadCounter.textContent = `${count}`;
-  }
-
-  exportLeadsCSV() {
-    const leads = this.loadLeads();
-    if (!leads.length) {
-      alert('No candidate leads collected yet. When candidates enter their Name & Email in Step 1 or Step 4, they will automatically be recorded here.');
-      return;
-    }
-    const headers = ['Full Name', 'Email', 'Degree', 'Major', 'Citizenship', 'Target Pathway', 'Graduation Date', 'OPT / EAD Start', 'Liquid Savings ($)', 'Recorded Timestamp'];
-    const rows = leads.map(l => [
-      `"${(l.fullName || '').replace(/"/g, '""')}"`,
-      `"${(l.email || '').replace(/"/g, '""')}"`,
-      `"${(l.degreeLevel || '').replace(/"/g, '""')}"`,
-      `"${(l.major || '').replace(/"/g, '""')}"`,
-      `"${(l.nationality || '').replace(/"/g, '""')}"`,
-      `"${(l.selectedPathway || '').replace(/"/g, '""')}"`,
-      `"${(l.graduationDate || '').replace(/"/g, '""')}"`,
-      `"${(l.optStartDate || '').replace(/"/g, '""')}"`,
-      l.liquidSavings || 0,
-      `"${l.timestamp || ''}"`
-    ]);
-
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `F1Navigator_Candidate_Leads_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 }
 
-// Instantiate on DOM load
+// Instantiate on DOM ready
 window.addEventListener('DOMContentLoaded', () => {
   window.f1Navigator = new F1Navigator();
 });

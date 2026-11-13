@@ -155,22 +155,131 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   4. INVISA HEADER
+   3.1 FLOATING MAIN SITE NAVIGATION (INVISA-US.COM SITEMAP)
    -------------------------------------------------------------------------- */
-.app-header {
-  border-bottom: 1px solid var(--border-subtle);
-  background: rgba(247, 245, 250, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+.main-site-nav-wrapper {
+  width: 100%;
+  padding: 14px 20px 8px 20px;
   position: sticky;
   top: 0;
-  z-index: 50;
-  padding: 14px 28px;
-  box-shadow: 0 1px 4px rgba(35, 31, 32, 0.03);
+  z-index: 1000;
+  pointer-events: none;
 }
 
-.header-inner {
-  max-width: 1080px;
+.main-site-nav {
+  max-width: 1140px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 226, 226, 0.85);
+  border-radius: 9999px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 22px rgba(35, 31, 32, 0.05), 0 1px 3px rgba(35, 31, 32, 0.03);
+  pointer-events: auto;
+  transition: all var(--transition-normal);
+}
+
+.main-site-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.main-site-logo {
+  height: 36px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.main-site-menu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-link {
+  font-family: var(--font-h2);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--brand-charcoal);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  padding: 6px 4px;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--brand-cobalt);
+}
+
+.nav-link.active-tool {
+  color: var(--brand-cobalt);
+  font-weight: 600;
+}
+
+.nav-btn-waitlist {
+  background: var(--brand-cobalt);
+  color: #FFFFFF !important;
+  font-family: var(--font-h2);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 22px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(20, 74, 134, 0.22);
+  white-space: nowrap;
+}
+
+.nav-btn-waitlist:hover {
+  background: #0f3967;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 74, 134, 0.32);
+}
+
+.nav-mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hamburger-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--brand-charcoal);
+  border-radius: 2px;
+  transition: all var(--transition-fast);
+}
+
+/* --------------------------------------------------------------------------
+   4. INVISA TOOL APP SUB-HEADER (MATCHING WEB APP SCREENSHOT)
+   -------------------------------------------------------------------------- */
+.app-sub-header {
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(247, 245, 250, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 24px;
+  margin-bottom: 12px;
+}
+
+.app-sub-header .header-inner {
+  max-width: 1040px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -178,39 +287,54 @@ body {
   gap: 16px;
 }
 
-.brand-block {
+.tool-brand-group {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.brand-logo-img {
-  height: 38px;
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
-
-.brand-badge {
+.tool-badge-pill {
   font-family: var(--font-h2);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 3px 9px;
-  border-radius: var(--radius-sm);
-  background: var(--primary-subtle);
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(20, 74, 134, 0.08);
   color: var(--brand-cobalt);
-  font-weight: 600;
-  border: 1px solid var(--primary-border);
+  border: 1px solid rgba(20, 74, 134, 0.25);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
 }
 
-.header-status-group {
+.tool-actions-group {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+}
+
+.btn-tool-action {
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  color: var(--brand-charcoal);
+  font-family: var(--font-h2);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 15px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(35, 31, 32, 0.04);
+}
+
+.btn-tool-action:hover {
+  background: var(--bg-subtle);
+  border-color: var(--brand-cobalt);
+  color: var(--brand-cobalt);
 }
 
 .save-indicator {
@@ -231,101 +355,73 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   5. PROGRESS STEPPER
+   5. PROGRESS STEPPER (WEB APP WIZARD WITH SLASH SEPARATORS)
    -------------------------------------------------------------------------- */
 .stepper-nav {
-  max-width: 860px;
-  margin: 32px auto 28px auto;
-  padding: 0 20px;
+  max-width: 920px;
+  margin: 16px auto 26px auto;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .stepper-list {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   list-style: none;
-  position: relative;
+  padding-bottom: 14px;
   margin: 0;
-  padding: 0;
+  flex-wrap: wrap;
 }
 
 .step-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  position: relative;
+  gap: 8px;
   cursor: pointer;
-  background: transparent;
-  padding: 0;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
   user-select: none;
-  text-align: center;
 }
 
-/* Connecting line running seamlessly between step circles */
 .step-item:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  width: 100%;
-  height: 2px;
-  background: var(--border-subtle);
-  z-index: 1;
-  transition: background var(--transition-normal);
-}
-
-.step-item.completed:not(:last-child)::after {
-  background: var(--brand-sea-green);
+  content: '/';
+  margin-left: 12px;
+  color: #BDBAC6;
+  font-weight: 300;
+  font-size: 15px;
 }
 
 .step-circle {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 2px solid var(--border-card);
-  background: var(--bg-surface);
-  color: var(--text-subtle);
+  background: #E8E5EE;
+  color: #7A7585;
   font-family: var(--font-h2);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 2;
   transition: all var(--transition-fast);
-  box-shadow: 0 1px 3px rgba(35, 31, 32, 0.06);
 }
 
 .step-label {
   font-family: var(--font-h2);
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-  color: var(--text-subtle);
-  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #7A7585;
   transition: color var(--transition-fast);
-  padding: 0 4px;
-}
-
-.step-item:hover .step-circle {
-  border-color: var(--brand-cobalt);
-  color: var(--brand-cobalt);
-}
-
-.step-item:hover .step-label {
-  color: var(--text-main);
+  white-space: nowrap;
 }
 
 .step-item.active .step-circle {
   background: var(--brand-cobalt);
-  border-color: var(--brand-cobalt);
   color: #FFFFFF;
-  box-shadow: 0 0 0 4px rgba(20, 74, 134, 0.14), 0 4px 12px rgba(20, 74, 134, 0.35);
-  transform: scale(1.06);
+  box-shadow: 0 0 0 3px rgba(20, 74, 134, 0.16);
 }
 
 .step-item.active .step-label {
@@ -335,18 +431,116 @@ body {
 
 .step-item.completed .step-circle {
   background: var(--brand-sea-green);
-  border-color: var(--brand-sea-green);
-  color: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(13, 131, 65, 0.12), 0 2px 6px rgba(13, 131, 65, 0.2);
-}
-
-.step-item.completed:hover .step-circle {
-  border-color: var(--brand-sea-green);
   color: #FFFFFF;
 }
 
 .step-item.completed .step-label {
+  color: var(--brand-charcoal);
+  font-weight: 600;
+}
+
+.step-item:hover:not(.active) .step-circle {
+  background: #D8D4E2;
+  color: var(--brand-charcoal);
+}
+
+.step-item:hover:not(.active) .step-label {
+  color: var(--brand-charcoal);
+}
+
+/* App Hero Intro */
+.app-intro-header {
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto 28px auto;
+  padding: 0 16px;
+}
+
+.app-hero-title {
+  font-family: var(--font-h1);
+  font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 700;
+  color: var(--brand-charcoal);
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.app-hero-subtitle {
+  font-size: clamp(14px, 1.6vw, 16px);
   color: var(--text-muted);
+  line-height: 1.55;
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+/* Web App Card Header (Matching Screenshot 2) */
+.card-header-webapp {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step-badge-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brand-cobalt);
+  color: #FFFFFF;
+  font-family: var(--font-h2);
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-card-title {
+  font-family: var(--font-h2);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--brand-charcoal);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.step-counter-tag {
+  font-family: var(--font-h2);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.callout-alert-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
+  margin-bottom: 24px;
+  color: #92400E;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.callout-alert-icon {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 /* Mobile Stepper Status Line */
@@ -375,7 +569,7 @@ body {
 .main-content {
   max-width: 920px;
   margin: 0 auto;
-  padding: 0 20px 90px 20px;
+  padding: 0 20px 110px 20px;
 }
 
 .step-view {
@@ -1265,6 +1459,309 @@ body {
 .fuel-bar-fill.warning { background: var(--brand-goldleaf); }
 .fuel-bar-fill.danger { background: var(--danger); }
 
+/* --------------------------------------------------------------------------
+   WEB APP PERSISTENT BOTTOM DOCK (MATCHING SCREENSHOT 2)
+   Keeps next/back controls docked at one place on screen
+   -------------------------------------------------------------------------- */
+.app-bottom-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-subtle);
+  box-shadow: 0 -4px 20px rgba(35, 31, 32, 0.06);
+  padding: 14px 24px;
+  transition: all var(--transition-fast);
+}
+
+.dock-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dock-btn-back {
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  color: var(--brand-charcoal);
+  font-family: var(--font-h2);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(35, 31, 32, 0.05);
+  text-decoration: none;
+  min-height: 42px;
+}
+
+.dock-btn-back:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  border-color: var(--brand-cobalt);
+  color: var(--brand-cobalt);
+}
+
+.dock-btn-back:disabled,
+.dock-btn-back.hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dock-step-indicator {
+  font-family: var(--font-h2);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  user-select: none;
+}
+
+.dock-next-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dock-btn-next {
+  background: var(--brand-cobalt);
+  border: 1px solid var(--brand-cobalt);
+  color: #FFFFFF !important;
+  font-family: var(--font-h2);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(20, 74, 134, 0.25);
+  text-decoration: none;
+  min-height: 42px;
+}
+
+.dock-btn-next:hover {
+  background: #0f3967;
+  border-color: #0f3967;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 74, 134, 0.32);
+}
+
+.dock-btn-secondary {
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  color: var(--brand-charcoal);
+  font-family: var(--font-h2);
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  min-height: 42px;
+}
+
+.dock-btn-secondary:hover {
+  background: var(--bg-subtle);
+  border-color: var(--brand-cobalt);
+  color: var(--brand-cobalt);
+}
+
+/* --------------------------------------------------------------------------
+   REPORT EXPORT CENTER (PNG & DOCX DOWNLOAD CARDS)
+   Replaces email delivery with direct offline file downloads
+   -------------------------------------------------------------------------- */
+.report-export-center {
+  background: #FFFFFF;
+  border: 1.5px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px;
+  margin-top: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.export-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.export-card {
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all var(--transition-normal);
+}
+
+.export-card:hover {
+  border-color: var(--brand-cobalt);
+  box-shadow: 0 4px 16px rgba(20, 74, 134, 0.08);
+}
+
+.export-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.export-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: rgba(20, 74, 134, 0.08);
+  color: var(--brand-cobalt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.export-card-title {
+  font-family: var(--font-h2);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--brand-charcoal);
+  margin-bottom: 4px;
+}
+
+.export-card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------------------------------
+   VISA FAQ MODAL DIALOG
+   -------------------------------------------------------------------------- */
+.faq-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(35, 31, 32, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.faq-modal-overlay.open {
+  display: flex;
+  opacity: 1;
+}
+
+.faq-modal-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  max-width: 680px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.faq-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FAFAFC;
+}
+
+.faq-modal-header h3 {
+  font-family: var(--font-h2);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brand-charcoal);
+  margin: 0;
+}
+
+.faq-modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 26px;
+  color: var(--text-subtle);
+  padding: 2px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: all var(--transition-fast);
+}
+
+.faq-modal-close:hover {
+  background: var(--bg-subtle);
+  color: var(--brand-charcoal);
+}
+
+.faq-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.faq-item {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.faq-q {
+  font-family: var(--font-h2);
+  font-weight: 700;
+  color: var(--brand-charcoal);
+  font-size: 14.5px;
+  margin-bottom: 6px;
+}
+
+.faq-a {
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
 /* Minimalist Footer */
 .minimal-footer {
   text-align: center;
@@ -1707,41 +2204,102 @@ body {
   /* Footer Mobile Refinement */
   .minimal-footer {
     margin-top: 36px;
-    padding: 24px 14px calc(28px + env(safe-area-inset-bottom, 0px)) 14px;
+    padding: 24px 14px calc(80px + env(safe-area-inset-bottom, 0px)) 14px;
     font-size: 11.5px;
   }
 
-  .minimal-footer .footer-logo-row {
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 10px;
+  .export-grid {
+    grid-template-columns: 1fr;
   }
 
-  .footer-brand {
-    gap: 7px;
+  .app-bottom-dock {
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) 14px;
   }
 
-  .footer-brand-name {
+  .dock-btn-back {
+    padding: 8px 14px;
     font-size: 13px;
   }
 
-  .footer-divider {
-    display: none;
+  .dock-btn-next {
+    padding: 9px 18px;
+    font-size: 13px;
   }
 
-  .footer-tagline {
+  .dock-step-indicator {
     font-size: 12px;
-    text-align: center;
-    line-height: 1.45;
   }
 
-  .footer-disclaimer {
-    font-size: 11px;
-    line-height: 1.55;
-    max-width: 330px;
-    margin: 0 auto;
-    text-align: center;
+  .main-site-nav-wrapper {
+    padding: 8px 10px 4px 10px;
+  }
+
+  .main-site-nav {
+    border-radius: 16px;
+    padding: 8px 14px;
+    position: relative;
+  }
+
+  .main-site-logo {
+    height: 30px;
+  }
+
+  .nav-mobile-toggle {
+    display: flex;
+  }
+
+  .main-site-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .main-site-menu.open {
+    display: flex;
+  }
+
+  .main-site-menu .nav-link {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .main-site-menu .nav-link:hover {
+    background: var(--bg-subtle);
+  }
+
+  .main-site-menu .nav-btn-waitlist {
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+
+/* Tablet Menu Rules (681px to 960px) */
+@media (min-width: 681px) and (max-width: 960px) {
+  .main-site-menu {
+    gap: 14px;
+  }
+
+  .nav-link {
+    font-size: 13.5px;
+  }
+
+  .nav-btn-waitlist {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .minimal-footer {
+    padding-bottom: 90px;
   }
 }
 
@@ -1751,8 +2309,11 @@ body {
     background: #FFFFFF !important;
     color: #000000 !important;
   }
-  .app-header, .stepper-nav, .report-actions, .btn-row, .minimal-footer {
+  .main-site-nav-wrapper, .app-sub-header, .stepper-nav, .report-actions, .btn-row, .minimal-footer, .app-bottom-dock, .faq-modal-overlay {
     display: none !important;
+  }
+  .main-content {
+    padding-bottom: 0 !important;
   }
   .card, .report-section, .report-header-banner {
     border: 1px solid #CCCCCC !important;

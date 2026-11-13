@@ -3,9 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>F1 Navigator | Non-Lottery Immigration & Runway Strategy Engine</title>
+  <title>F1 Navigator | Non-Lottery Immigration &amp; Runway Strategy Engine</title>
   <meta name="description" content="F1 Navigator: Grounded, transparent immigration roadmap helping international graduates navigate non-lottery U.S. visa pathways: O-1A, EB-2 NIW, Cap-Exempt H-1B, and Treaty visas.">
+  <link rel="canonical" href="https://f1-navigator.invisa-us.com/">
   <link rel="icon" type="image/svg+xml" href="assets/logos/INVISA%20Logo_Icon_Color.svg">
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://f1-navigator.invisa-us.com/">
+  <meta property="og:title" content="F1 Navigator | Non-Lottery Immigration Strategy Engine">
+  <meta property="og:description" content="Interactive legal planning for international students navigating non-lottery U.S. visa pathways: O-1A, EB-2 NIW, Treaty visas, and Cap-Exempt employers.">
+  <meta property="og:image" content="https://f1-navigator.invisa-us.com/assets/logos/INVISA%20Logo_Horizontal_Color.svg">
   
   <!-- Font Imports: Gambetta, Outfit, Newsreader (Note: Petit Formal Script dropped permanently) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,40 +22,75 @@
   <link href="https://api.fontshare.com/v2/css?f[]=gambetta@400,500,600,700,401,501,601,701&display=swap" rel="stylesheet">
 
   <!-- INVISA Brand Design System CSS -->
-  <link rel="stylesheet" href="css/main.css?v=1.2">
+  <link rel="stylesheet" href="css/main.css?v=2.0">
 </head>
 <body>
 
-  <!-- App Header -->
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="brand-block">
-        <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-          <img src="assets/logos/INVISA%20Logo_Horizontal_Color.svg" alt="INVISA" class="brand-logo-img">
-          <span class="brand-divider" style="display: inline-block; width: 1px; height: 26px; background: var(--border-card);"></span>
-          <span class="brand-name" style="font-family: var(--font-h1); font-size: 20px; font-weight: 600; color: var(--brand-charcoal); letter-spacing: -0.01em;">F1 Navigator</span>
-        </a>
-        <span class="brand-badge">Non-Lottery Engine</span>
+  <!-- ======================================================== -->
+  <!-- 1. FLOATING MAIN SITE NAVIGATION (INVISA-US.COM SITEMAP) -->
+  <!-- ======================================================== -->
+  <header class="main-site-nav-wrapper">
+    <nav class="main-site-nav" aria-label="Main Site Navigation">
+      <a href="https://invisa-us.com/" class="main-site-brand" title="INVISA Homepage">
+        <img src="assets/logos/INVISA%20Logo_Horizontal_Color.svg" alt="INVISA - Investor Visa Support and Advice" class="main-site-logo">
+      </a>
+
+      <div class="main-site-menu" id="mainSiteMenu">
+        <a href="https://invisa-us.com/" class="nav-link">Home</a>
+        <a href="https://invisa-us.com/about" class="nav-link">About</a>
+        <a href="https://invisa-us.com/solutions" class="nav-link">Solutions</a>
+        <a href="https://invisa-us.com/resources" class="nav-link">Resources</a>
+        <a href="https://invisa-us.com/community" class="nav-link">Community</a>
+        <a href="https://invisa-us.com/contact" class="nav-link">Contact</a>
+        <a href="https://invisa-us.com/#waitlist" class="nav-btn-waitlist">Join the Waitlist</a>
       </div>
 
-      <div class="header-status-group">
-        <div class="save-indicator">
+      <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. TOOL APP SUB-HEADER (MATCHING WEB APP SCREENSHOT)     -->
+  <!-- ======================================================== -->
+  <div class="app-sub-header">
+    <div class="header-inner">
+      <div class="tool-brand-group">
+        <a href="https://f1-navigator.invisa-us.com/" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+          <img src="assets/logos/INVISA%20Logo_Icon_Color.svg" alt="INVISA" style="height: 28px; width: auto;">
+          <span style="font-family: var(--font-h1); font-size: 19px; font-weight: 700; color: var(--brand-charcoal); letter-spacing: -0.01em;">F1 NAVIGATOR</span>
+        </a>
+        <span class="tool-badge-pill">F-1 STRATEGY ENGINE</span>
+      </div>
+
+      <div class="tool-actions-group">
+        <div class="save-indicator" style="margin-right: 4px;">
           <span class="save-dot"></span>
           <span>Auto-saved</span>
         </div>
-        <button id="btnResetAll" class="btn btn-secondary btn-sm" title="Clear inputs and start fresh">
-          Reset Model
+        <button id="btnResetAll" class="btn-tool-action" title="Clear inputs and start fresh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset All
+        </button>
+        <button id="btnOpenFaq" class="btn-tool-action" title="Non-lottery visa guidance &amp; FAQs">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Visa FAQ
         </button>
       </div>
     </div>
-  </header>
+  </div>
 
-  <!-- Progress Stepper -->
+  <!-- ======================================================== -->
+  <!-- 3. PROGRESS STEPPER (WEB APP WIZARD WITH / SEPARATORS)   -->
+  <!-- ======================================================== -->
   <nav class="stepper-nav" aria-label="Progress Stepper">
     <ol class="stepper-list">
       <li class="step-item active" data-step="1" id="stepIndicator1">
         <div class="step-circle">1</div>
-        <span class="step-label">Your Profile</span>
+        <span class="step-label">Profile</span>
       </li>
       <li class="step-item" data-step="2" id="stepIndicator2">
         <div class="step-circle">2</div>
@@ -62,8 +105,15 @@
         <span class="step-label">Strategic Report</span>
       </li>
     </ol>
-    <div class="mobile-step-status" id="mobileStepStatus" aria-live="polite">Step 1 of 4 &bull; Your Profile</div>
   </nav>
+
+  <!-- App Hero Title & Subtitle -->
+  <div class="app-intro-header">
+    <h1 class="app-hero-title">F-1 Non-Lottery Immigration &amp; Runway Strategy Engine</h1>
+    <p class="app-hero-subtitle">
+      Interactive financial and legal planning tool for international graduates navigating non-lottery U.S. visa pathways.
+    </p>
+  </div>
 
   <!-- Main Container -->
   <main class="main-content">
@@ -73,11 +123,19 @@
     <!-- ========================================== -->
     <section id="step1View" class="step-view active" aria-labelledby="step1Title">
       <div class="card">
-        <div class="card-header-clean">
-          <h1 class="card-title-clean" id="step1Title">Map your non-lottery immigration roadmap</h1>
-          <p class="card-subtitle-clean">
-            Share your academic background and timeline below. F1 Navigator evaluates your credentials against conservative U.S. immigration regulations to identify viable visa pathways outside the standard H-1B lottery.
-          </p>
+        <div class="card-header-webapp">
+          <div class="card-header-left">
+            <span class="step-badge-num">1</span>
+            <h2 class="step-card-title" id="step1Title">Candidate Profile &amp; Status Runway</h2>
+          </div>
+          <span class="step-counter-tag">Step 1 of 4</span>
+        </div>
+
+        <div class="callout-alert-box">
+          <span class="callout-alert-icon">💡</span>
+          <div>
+            <strong>Why international graduates need a non-lottery strategy:</strong> With standard H-1B lottery selection rates below 25%, international students without a non-lottery alternative face abrupt status expiration. Evaluating O-1A, EB-2 NIW, Bilateral Treaties, and Cap-Exempt institutions provides legal stability and career autonomy.
+          </div>
         </div>
 
         <form id="profileForm">
@@ -91,9 +149,12 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="inputEmail">Email Address</label>
-              <input type="email" id="inputEmail" class="form-input" placeholder="e.g. alex@university.edu" required>
-              <div class="form-hint">Used to deliver your personalized report and status timeline alerts.</div>
+              <label class="form-label" for="inputEmail">
+                <span>Email Address</span>
+                <span style="font-size: 11.5px; font-weight: normal; color: var(--text-subtle);">(Optional)</span>
+              </label>
+              <input type="email" id="inputEmail" class="form-input" placeholder="e.g. alex@university.edu">
+              <div class="form-hint">Optional contact reference. Strategy reports are downloaded directly as .PNG or .DOCX.</div>
             </div>
           </div>
 
@@ -234,7 +295,7 @@
                   <option value="Switzerland">Switzerland</option>
                   <option value="Taiwan">Taiwan</option>
                   <option value="Thailand">Thailand</option>
-                  <option value="Trinidad & Tobago">Trinidad & Tobago</option>
+                  <option value="Trinidad &amp; Tobago">Trinidad &amp; Tobago</option>
                   <option value="Tunisia">Tunisia</option>
                   <option value="Turkey">Turkey</option>
                   <option value="Ukraine">Ukraine</option>
@@ -330,12 +391,6 @@
               <input type="number" id="inputSavings" class="form-input" step="1000" value="25000">
             </div>
           </div>
-
-          <div class="btn-row" style="justify-content: flex-end;">
-            <button type="submit" class="btn btn-primary" id="btnSubmitProfile">
-              Calculate My Runway &amp; Options →
-            </button>
-          </div>
         </form>
       </div>
     </section>
@@ -345,12 +400,17 @@
     <!-- ========================================== -->
     <section id="step2View" class="step-view" aria-labelledby="step2Title">
       <div class="card">
-        <div class="card-header-clean">
-          <h2 class="card-title-clean" id="step2Title">Your Recommended Visa Pathways</h2>
-          <p class="card-subtitle-clean">
-            Based on your qualifications and citizenship, we ranked your top non-lottery pathways. Select the pathway you want to pursue to tailor your strategic report and financial roadmap.
-          </p>
+        <div class="card-header-webapp">
+          <div class="card-header-left">
+            <span class="step-badge-num">2</span>
+            <h2 class="step-card-title" id="step2Title">Your Recommended Visa Pathways</h2>
+          </div>
+          <span class="step-counter-tag">Step 2 of 4</span>
         </div>
+
+        <p class="card-subtitle-clean" style="margin-bottom: 18px;">
+          Based on your qualifications and citizenship, we ranked your top non-lottery pathways. Select the pathway you want to pursue to tailor your strategic report and financial roadmap.
+        </p>
 
         <div id="step2ProfileSummary" style="padding: 14px 18px; border-radius: var(--radius-md); background: var(--bg-subtle); border: 1px solid var(--border-subtle); margin-bottom: 20px; font-size: 13.5px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <!-- Injected via JS -->
@@ -358,12 +418,6 @@
 
         <div class="pathway-list" id="pathwaysContainer">
           <!-- Injected dynamically via JS -->
-        </div>
-
-        <div class="btn-row">
-          <button type="button" class="btn btn-secondary" id="btnBackToStep1">
-            ← Adjust Profile Credentials
-          </button>
         </div>
       </div>
     </section>
@@ -373,15 +427,20 @@
     <!-- ========================================== -->
     <section id="step3View" class="step-view" aria-labelledby="step3Title">
       <div class="card">
-        <div class="card-header-clean">
-          <div style="font-family: var(--font-h2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brand-cobalt); font-weight: 700; margin-bottom: 4px;" id="selectedPathwayTag">
-            Selected Pathway
+        <div class="card-header-webapp">
+          <div class="card-header-left">
+            <span class="step-badge-num">3</span>
+            <h2 class="step-card-title" id="step3Title">Tailoring Your Strategy &amp; Financial Runway</h2>
           </div>
-          <h2 class="card-title-clean" id="step3Title">Tailoring Your Strategy &amp; Financial Runway</h2>
-          <p class="card-subtitle-clean" id="step3Subtitle">
-            Answer a few pathway-specific questions so we can generate your customized operational checklist, filing timeline, and financial budget.
-          </p>
+          <span class="step-counter-tag">Step 3 of 4</span>
         </div>
+
+        <div style="font-family: var(--font-h2); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brand-cobalt); font-weight: 700; margin-bottom: 6px;" id="selectedPathwayTag">
+          Selected Pathway
+        </div>
+        <p class="card-subtitle-clean" id="step3Subtitle" style="margin-bottom: 20px;">
+          Answer a few pathway-specific questions so we can generate your customized operational checklist, filing timeline, and financial budget.
+        </p>
 
         <form id="deepDiveForm">
           <!-- Dynamic Form Fields tailored to chosen pathway -->
@@ -408,15 +467,6 @@
               </select>
             </div>
           </div>
-
-          <div class="btn-row">
-            <button type="button" class="btn btn-secondary" id="btnBackToStep2">
-              ← Change Visa Pathway
-            </button>
-            <button type="submit" class="btn btn-primary" id="btnGenerateReport">
-              Generate Strategic Report &amp; Next Steps →
-            </button>
-          </div>
         </form>
       </div>
     </section>
@@ -441,13 +491,75 @@
         <span class="footer-tagline">Non-Lottery Immigration &amp; Runway Strategy Engine</span>
       </div>
       <p class="footer-disclaimer">
-        Grounded scenario modeling based on Title 8 of the Code of Federal Regulations (8 CFR). Not legal advice.
+        Grounded scenario modeling based on Title 8 of the Code of Federal Regulations (8 CFR). Not formal legal advice.
+        Hosted at <a href="https://f1-navigator.invisa-us.com/" style="color: var(--brand-cobalt); text-decoration: none;">f1-navigator.invisa-us.com</a> &bull; Main: <a href="https://invisa-us.com/" style="color: var(--brand-cobalt); text-decoration: none;">invisa-us.com</a>
       </p>
     </footer>
 
   </main>
 
+  <!-- ======================================================== -->
+  <!-- 4. PERSISTENT FIXED BOTTOM DOCK (WEB APP CONTROLS)       -->
+  <!-- ======================================================== -->
+  <footer class="app-bottom-dock" id="appBottomDock" aria-label="Navigation Controls">
+    <div class="dock-inner">
+      <button type="button" class="dock-btn-back hidden" id="dockBtnBack" aria-label="Previous step">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        <span>Back</span>
+      </button>
+
+      <div class="dock-step-indicator" id="dockStepIndicator">
+        Step 1 of 4 &bull; Profile
+      </div>
+
+      <div class="dock-next-group" id="dockNextGroup">
+        <button type="button" class="dock-btn-next" id="dockBtnNext">
+          <span>Next: Visa Matches</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- 5. VISA FAQ MODAL DIALOG                                 -->
+  <!-- ======================================================== -->
+  <div class="faq-modal-overlay" id="faqModalOverlay" role="dialog" aria-modal="true" aria-labelledby="faqModalTitle">
+    <div class="faq-modal-card">
+      <div class="faq-modal-header">
+        <h3 id="faqModalTitle">F-1 Non-Lottery Immigration &amp; Status FAQ</h3>
+        <button class="faq-modal-close" id="faqModalClose" aria-label="Close FAQ dialog">&times;</button>
+      </div>
+      <div class="faq-modal-body">
+        <div class="faq-item">
+          <div class="faq-q">What is the F-1 Navigator and why bypass the H-1B lottery?</div>
+          <div class="faq-a">The annual H-1B lottery receives ~470,000+ registrations for only 85,000 visas—resulting in an ~80% rejection rate. F-1 Navigator models grounded, merit-based, treaty, and institutional pathways under Title 8 CFR (O-1A, EB-2 NIW, TN/E-3/H-1B1, and Cap-Exempt H-1B) that can be filed year-round without lottery dependency.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does O-1A Extraordinary Ability work for STEM graduates?</div>
+          <div class="faq-a">O-1A requires meeting at least 3 of 8 regulatory criteria (scholarly papers, judging/peer review, critical employment role, high remuneration, or original scientific contributions). With 15-day USCIS Premium Processing, it allows rapid adjudication and unlimited renewals.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can an F-1 or OPT holder self-petition for an EB-2 NIW Green Card?</div>
+          <div class="faq-a">Yes. Under the Matter of Dhanasar precedent framework, candidates with advanced degrees (Master's or Ph.D.) working in areas of substantial merit and national importance (such as AI, biotechnology, cybersecurity, or clean energy) can self-petition for permanent residency without an employer sponsor or PERM labor certification.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What bilateral treaty visas bypass the lottery for specific citizens?</div>
+          <div class="faq-a">Citizens of Canada &amp; Mexico qualify for TN status (USMCA); Australians qualify for the E-3 specialty occupation visa; citizens of Chile &amp; Singapore qualify for dedicated H-1B1 visas; and citizens of 80+ treaty nations qualify for the E-2 Treaty Investor visa to launch startups.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How are OPT unemployment days calculated?</div>
+          <div class="faq-a">Under 8 CFR § 214.2(f)(10)(ii)(E), standard 12-month OPT permits a maximum of 90 days of cumulative unemployment. A approved 24-month STEM extension adds 60 days, giving a cumulative limit of 150 days across the 36-month authorization.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How can I download and share my report?</div>
+          <div class="faq-a">You can download your personalized action plan directly as a high-resolution .PNG infographic or an editable Microsoft Word (.DOCX) brief for your immigration attorney, employer, or DSO. Reports are generated in real-time in your browser without email delivery.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Application Module Script -->
-  <script type="module" src="js/app.js?v=1.1"></script>
+  <script type="module" src="js/app.js?v=2.0"></script>
 </body>
 </html>
