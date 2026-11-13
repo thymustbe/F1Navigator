@@ -361,7 +361,7 @@ export function generateReportCanvas(profile, reportData, pathwayTitle) {
   ctx.fillStyle = '#777777';
   ctx.font = '11.5px Outfit, sans-serif';
   ctx.fillText('Grounded scenario modeling based on Title 8 of the Code of Federal Regulations (8 CFR). Not formal legal representation.', contentX, curY);
-  ctx.fillText(`Generated on ${new Date().toLocaleDateString()} • Tool: https://f1-navigator.invisa-us.com/ • Main Site: https://invisa-us.com/`, contentX, curY + 20);
+  ctx.fillText(`Generated on ${new Date().toLocaleDateString()} • Tool: https://f1-navigator.invisa-us.com/ • Invisa Home Page: https://invisa-us.com/`, contentX, curY + 20);
 
   return canvas;
 }
