@@ -123,6 +123,11 @@ class F1Navigator {
     this.faqModalOverlay = document.getElementById('faqModalOverlay');
     this.faqModalClose = document.getElementById('faqModalClose');
 
+    // "More F-1 Tools" Dropdown Menu
+    this.btnF1Tools = document.getElementById('btnF1Tools');
+    this.f1ToolsWrap = document.getElementById('f1ToolsWrap');
+    this.f1ToolsDropdown = document.getElementById('f1ToolsDropdown');
+
     // Main Site Dropdown Menu
     this.btnSiteMenu = document.getElementById('btnSiteMenu');
     this.siteMenuWrap = document.getElementById('siteMenuWrap');
@@ -221,28 +226,62 @@ class F1Navigator {
       });
     }
 
+    // Filter out current tool from "More F-1 Tools" dropdown
+    this.filterCurrentToolFromMenu();
+
+    // "More F-1 Tools" Dropdown Menu Toggle
+    if (this.btnF1Tools && this.f1ToolsWrap) {
+      this.btnF1Tools.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Close Main Site dropdown if open
+        if (this.siteMenuWrap && this.siteMenuWrap.classList.contains('open')) {
+          this.siteMenuWrap.classList.remove('open');
+          this.btnSiteMenu?.setAttribute('aria-expanded', 'false');
+        }
+        const isOpen = this.f1ToolsWrap.classList.toggle('open');
+        this.btnF1Tools.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+
     // Main Site Dropdown Menu Toggle
     if (this.btnSiteMenu && this.siteMenuWrap) {
       this.btnSiteMenu.addEventListener('click', (e) => {
         e.stopPropagation();
+        // Close F-1 Tools dropdown if open
+        if (this.f1ToolsWrap && this.f1ToolsWrap.classList.contains('open')) {
+          this.f1ToolsWrap.classList.remove('open');
+          this.btnF1Tools?.setAttribute('aria-expanded', 'false');
+        }
         const isOpen = this.siteMenuWrap.classList.toggle('open');
         this.btnSiteMenu.setAttribute('aria-expanded', String(isOpen));
       });
-
-      document.addEventListener('click', (e) => {
-        if (this.siteMenuWrap.classList.contains('open') && !this.siteMenuWrap.contains(e.target)) {
-          this.siteMenuWrap.classList.remove('open');
-          this.btnSiteMenu.setAttribute('aria-expanded', 'false');
-        }
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.siteMenuWrap.classList.contains('open')) {
-          this.siteMenuWrap.classList.remove('open');
-          this.btnSiteMenu.setAttribute('aria-expanded', 'false');
-        }
-      });
     }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      if (this.f1ToolsWrap && this.f1ToolsWrap.classList.contains('open') && !this.f1ToolsWrap.contains(e.target)) {
+        this.f1ToolsWrap.classList.remove('open');
+        this.btnF1Tools?.setAttribute('aria-expanded', 'false');
+      }
+      if (this.siteMenuWrap && this.siteMenuWrap.classList.contains('open') && !this.siteMenuWrap.contains(e.target)) {
+        this.siteMenuWrap.classList.remove('open');
+        this.btnSiteMenu?.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Close dropdowns on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (this.f1ToolsWrap && this.f1ToolsWrap.classList.contains('open')) {
+          this.f1ToolsWrap.classList.remove('open');
+          this.btnF1Tools?.setAttribute('aria-expanded', 'false');
+        }
+        if (this.siteMenuWrap && this.siteMenuWrap.classList.contains('open')) {
+          this.siteMenuWrap.classList.remove('open');
+          this.btnSiteMenu?.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
 
     // Web App Dock: Back Button
     if (this.dockBtnBack) {
@@ -281,6 +320,34 @@ class F1Navigator {
         }
       });
     }
+  }
+
+  filterCurrentToolFromMenu() {
+    const currentHostname = window.location.hostname.toLowerCase();
+    const canonicalHref = (document.querySelector('link[rel="canonical"]')?.href || '').toLowerCase();
+    const toolItems = document.querySelectorAll('.f1-tool-item');
+
+    toolItems.forEach(item => {
+      const itemUrl = item.getAttribute('data-tool-url') || item.getAttribute('href') || '';
+      try {
+        const parsed = new URL(itemUrl);
+        const itemHostname = parsed.hostname.toLowerCase();
+
+        const isCurrent = (
+          (currentHostname && currentHostname.length > 3 && itemHostname === currentHostname) ||
+          (canonicalHref && canonicalHref.includes(itemHostname)) ||
+          (itemHostname.includes('f1-navigator'))
+        );
+
+        if (isCurrent) {
+          item.remove();
+        }
+      } catch (err) {
+        if (itemUrl.includes('f1-navigator')) {
+          item.remove();
+        }
+      }
+    });
   }
 
   updateStemPill(isStem) {

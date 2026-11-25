@@ -32,8 +32,8 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="tool-brand-group">
-        <a href="https://f1-navigator.invisa-us.com/" class="brand-link" title="F1 Navigator Home">
-          <img src="assets/logos/INVISA%20Logo_Horizontal_Color.svg" alt="INVISA" class="brand-logo-img">
+        <a href="https://f1-navigator.invisa-us.com/" class="brand-link" title="INVISA F-1 Resource Hub - F1 Navigator">
+          <img src="assets/logos/INVISA%20Logo_Horizontal_Color_TaglineFree.svg" alt="INVISA" class="brand-logo-img">
         </a>
         <span class="tool-badge-pill">F-1 NAVIGATOR</span>
       </div>
@@ -42,6 +42,67 @@
         <div class="save-indicator">
           <span class="save-dot"></span>
           <span>Auto-saved</span>
+        </div>
+
+        <!-- "More F-1 Tools" Dropdown Menu -->
+        <div class="f1-tools-dropdown-wrap" id="f1ToolsWrap">
+          <button type="button" class="btn-tool-action dropdown-trigger" id="btnF1Tools" aria-expanded="false" aria-haspopup="true" title="Explore More INVISA F-1 Tools">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+            <span>More F-1 Tools</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <!-- F-1 Tools Dropdown Card -->
+          <div class="f1-tools-dropdown" id="f1ToolsDropdown" role="menu" aria-label="More INVISA F-1 Tools">
+            <div class="f1-tools-header">
+              <span class="f1-tools-header-title">INVISA F-1 RESOURCE HUB</span>
+              <span class="f1-tools-header-sub">More F-1 Visa Micro-Tools</span>
+            </div>
+            <div class="f1-tools-list" id="f1ToolsList">
+              <a href="https://f1movein-estimator.invisa-us.com/" class="f1-tool-item" target="_blank" rel="noopener noreferrer" data-tool-url="https://f1movein-estimator.invisa-us.com/">
+                <div class="f1-tool-item-header">
+                  <span class="f1-tool-name">True Move-In Cash Estimator</span>
+                  <svg class="external-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </div>
+                <p class="f1-tool-desc">Estimate upfront rent, security deposits, and utility setup costs</p>
+              </a>
+              <a href="https://f1-phonepicker.invisa-us.com/" class="f1-tool-item" target="_blank" rel="noopener noreferrer" data-tool-url="https://f1-phonepicker.invisa-us.com/">
+                <div class="f1-tool-item-header">
+                  <span class="f1-tool-name">F-1 Phone Plan Picker</span>
+                  <svg class="external-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </div>
+                <p class="f1-tool-desc">Compare prepaid, postpaid, and eSIM options for new arrivals</p>
+              </a>
+              <a href="https://f1wire-calculator.invisa-us.com/" class="f1-tool-item" target="_blank" rel="noopener noreferrer" data-tool-url="https://f1wire-calculator.invisa-us.com/">
+                <div class="f1-tool-item-header">
+                  <span class="f1-tool-name">Tuition Wire FX Markup &amp; Hidden Fee Calculator</span>
+                  <svg class="external-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </div>
+                <p class="f1-tool-desc">Compare wire transfer markups and hidden fees across providers</p>
+              </a>
+              <a href="https://opt-startup-checker.invisa-us.com/" class="f1-tool-item" target="_blank" rel="noopener noreferrer" data-tool-url="https://opt-startup-checker.invisa-us.com/">
+                <div class="f1-tool-item-header">
+                  <span class="f1-tool-name">F-1 Startup &amp; Self-Employment Compliance Checker</span>
+                  <svg class="external-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </div>
+                <p class="f1-tool-desc">Check SEVP rules and business structure options</p>
+              </a>
+              <a href="https://f1-navigator.invisa-us.com/" class="f1-tool-item" target="_blank" rel="noopener noreferrer" data-tool-url="https://f1-navigator.invisa-us.com/">
+                <div class="f1-tool-item-header">
+                  <span class="f1-tool-name">F-1 Status Navigator</span>
+                  <svg class="external-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </div>
+                <p class="f1-tool-desc">Track OPT unemployment limits, grace periods, and key deadlines</p>
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- Single Menu Dropdown connecting to main invisa-us.com site -->
